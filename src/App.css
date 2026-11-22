@@ -1,0 +1,502 @@
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.app-header {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--accent-tertiary);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 0 var(--border);
+}
+
+.app-header h1 {
+  margin-bottom: 0.5rem;
+}
+
+.app-header p {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panel {
+  background: var(--white);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 0 var(--border);
+  padding: 1.5rem;
+}
+
+/* Buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  background: var(--white);
+  border: 3px solid var(--border);
+  box-shadow: 4px 4px 0 0 var(--border);
+  cursor: pointer;
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+
+.button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 0 var(--border);
+}
+
+.button:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 0 var(--border);
+}
+
+.button-primary {
+  background: var(--accent);
+  color: var(--white);
+}
+
+.button-small {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg);
+  border: 3px solid var(--border);
+  outline: none;
+}
+
+.input:focus {
+  background: var(--white);
+  box-shadow: 4px 4px 0 0 var(--border);
+}
+
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%231a1a1a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.25rem;
+}
+
+/* Forms */
+.form-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.form-row .input {
+  flex: 1;
+}
+
+.form-field {
+  display: block;
+  margin-bottom: 1rem;
+  border: none;
+  padding: 0;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.expense-form .button {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Chips */
+.chip-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0;
+  margin: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-weight: 700;
+  background: var(--accent-secondary);
+  border: 3px solid var(--border);
+  box-shadow: 3px 3px 0 0 var(--border);
+}
+
+.chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-weight: 800;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--text);
+  background: var(--white);
+  border: 2px solid var(--border);
+  cursor: pointer;
+}
+
+.chip-remove:hover {
+  background: var(--accent);
+  color: var(--white);
+}
+
+/* Checkboxes */
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  font-weight: 700;
+  background: var(--bg);
+  border: 3px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.checkbox-label:hover {
+  background: var(--white);
+}
+
+.checkbox-label input[type='checkbox'] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.checkbox-label--payer {
+  background: var(--accent-tertiary);
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+/* Expense list */
+.expense-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.expense-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--bg);
+  border: 3px solid var(--border);
+  box-shadow: 4px 4px 0 0 var(--border);
+}
+
+.expense-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.expense-description {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.expense-amount {
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--accent-dark);
+}
+
+.expense-meta {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.expense-card .button {
+  align-self: flex-start;
+}
+
+/* Balances */
+.balance-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.balance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  font-weight: 700;
+  background: var(--bg);
+  border: 3px solid var(--border);
+}
+
+.balance-name {
+  font-weight: 800;
+}
+
+.balance-amount {
+  font-family: var(--mono);
+  font-weight: 800;
+}
+
+.balance-owed {
+  background: #d4f8e8;
+}
+
+.balance-owes {
+  background: #ffe0e0;
+}
+
+/* Settlement */
+.settle-subtitle {
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.transaction-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.transaction-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--accent-tertiary);
+  border: 3px solid var(--border);
+  box-shadow: 4px 4px 0 0 var(--border);
+  font-weight: 700;
+}
+
+.transaction-party {
+  font-size: 1.1rem;
+}
+
+.transaction-amount {
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--accent-dark);
+}
+
+.transaction-arrow {
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* Summary */
+.summary-panel h2 {
+  margin-bottom: 1rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 2px dashed var(--border);
+  font-weight: 700;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.9rem;
+}
+
+.summary-value {
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+/* Utilities */
+.hint {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-style: italic;
+}
+
+.error {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  background: #ffe0e0;
+  border: 3px solid var(--border);
+  box-shadow: 3px 3px 0 0 var(--border);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(26, 26, 26, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: calc(100svh - 3rem);
+  overflow-y: auto;
+  background: var(--white);
+  border: 4px solid var(--border);
+  box-shadow: 10px 10px 0 0 var(--border);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--accent-tertiary);
+  border-bottom: 3px solid var(--border);
+}
+
+.modal-header h2 {
+  margin: 0;
+}
+
+.modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text);
+  background: var(--white);
+  border: 3px solid var(--border);
+  box-shadow: 3px 3px 0 0 var(--border);
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  background: var(--accent);
+  color: var(--white);
+}
+
+.modal-close:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 var(--border);
+}
+
+.modal-body {
+  padding: 1.25rem;
+}
+
+.expense-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.expense-section-header h2 {
+  margin: 0;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 4px 4px 0 0 var(--border);
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 1rem 1rem 2rem;
+  }
+
+  .app-header h1 {
+    font-size: 2rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .transaction-arrow {
+    display: none;
+  }
+}

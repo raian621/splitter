@@ -151,14 +151,6 @@ function App() {
       <header className="app-header">
         <h1>Splitter</h1>
         <p>Split bills and settle debts with minimum transactions.</p>
-        <button
-          type="button"
-          className="button button-primary"
-          onClick={handleShare}
-        >
-          Share bill
-        </button>
-        {shareMessage && <p className="share-message">{shareMessage}</p>}
       </header>
 
       <main className="app-main">
@@ -253,6 +245,19 @@ function App() {
             getPersonName={(id) => getPersonName(people, id)}
           />
         </section>
+
+          <button
+            type="button"
+            className="button button-primary"
+            onClick={handleShare}
+          >
+            Share bill
+          </button>
+          {shareMessage !== null && (
+            <p className="share-message" role="status">
+              {shareMessage}
+            </p>
+          )}
       </main>
     </div>
   );

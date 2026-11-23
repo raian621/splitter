@@ -31,14 +31,15 @@ function createDefaultFee(): Fee {
   };
 }
 
-function initializeState(expenseToEdit: Expense | undefined) {
+function initializeState(expenseToEdit: Expense | undefined, people: Person[]) {
+  console.log("initializing state...", expenseToEdit, people)
   if (!expenseToEdit) {
     return {
       description: "",
       amount: "",
       payerId: "",
       splitMethod: "equal" as const,
-      selectedParticipantIds: [] as string[],
+      selectedParticipantIds: people.map((p) => p.id) as string[],
       items: [createEmptyItem()],
       fees: [createDefaultFee()],
     };
@@ -88,8 +89,8 @@ export function ExpenseForm({
   onUpdateExpense,
 }: ExpenseFormProps) {
   const initialState = useMemo(
-    () => initializeState(expenseToEdit),
-    [expenseToEdit],
+    () => initializeState(expenseToEdit, people),
+    [expenseToEdit, people],
   );
 
   const [description, setDescription] = useState(initialState.description);

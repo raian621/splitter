@@ -8,6 +8,18 @@ export function splitExpense(expense: Expense): Balance[] {
   return splitEqualExpense(expense);
 }
 
+export function calculateExpenseContributions(
+  expense: Expense,
+): { personId: string; amount: number }[] {
+  const balances = splitExpense(expense);
+  return balances
+    .filter((balance) => balance.amount < 0)
+    .map((balance) => ({
+      personId: balance.personId,
+      amount: Math.abs(balance.amount),
+    }));
+}
+
 function splitEqualExpense(expense: Expense): Balance[] {
   if (expense.participantIds.length === 0) {
     return [];

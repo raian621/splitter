@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   aggregateBalances,
+  calculateExpenseContributions,
   calculateFeeTotal,
   calculateItemizedTotal,
   computeBalancesFromExpenses,
@@ -211,6 +212,61 @@ describe("calculateItemizedTotal", () => {
     ];
 
     expect(calculateItemizedTotal(items, fees)).toBe(12675);
+  });
+});
+
+describe("calculateExpenseContributions", () => {
+  it("returns equal contributions for an equal-split expense", () => {
+    const expense: Expense = {
+      id: "1",
+      description: "Taxi",
+      amount: 3000,
+      payerId: "alice",
+      participantIds: ["alice", "bob", "carol"],
+      splitMethod: "equal",
+    };
+
+    const contributions = calculateExpenseContributions(expense);
+
+    expect(contributions).toHaveLength(3);
+    expect(contributions).toEqual(
+      expect.arrayContaining([
+        { personId: "alice", amount: 1000 },
+        { personId: "bob", amount: 1000 },
+        { personId: "carol", amount: 1000 },
+      ]),
+    );
+  });
+
+  it("returns proportional contributions for an itemized expense", () => {
+    const expense: Expense = {
+      id: "1",
+      description: "Dinner",
+      amount: 12875,
+      payerId: "alice",
+      participantIds: [],
+      splitMethod: "itemized",
+      items: [
+        { id: "burger", description: "Burger", amount: 1500, consumerIds: ["alice"] },
+        { id: "pizza", description: "Pizza", amount: 3000, consumerIds: ["bob", "carol"] },
+        { id: "salad", description: "Salad", amount: 5500, consumerIds: ["alice", "bob", "carol"] },
+      ],
+      fees: [
+        { id: "tax", description: "Tax", type: "rate", value: 0.0875 },
+        { id: "tip", description: "Tip", type: "rate", value: 0.2 },
+      ],
+    };
+
+    const contributions = calculateExpenseContributions(expense);
+
+    expect(contributions).toHaveLength(3);
+    expect(contributions).toEqual(
+      expect.arrayContaining([
+        { personId: "alice", amount: 4293 },
+        { personId: "bob", amount: 4292 },
+        { personId: "carol", amount: 4290 },
+      ]),
+    );
   });
 });
 

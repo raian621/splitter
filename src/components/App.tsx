@@ -35,7 +35,9 @@ function App() {
   );
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [urlError, setUrlError] = useState<string | null>(null);
-  const [getId, setGetId] = useState<() => number>(() => getIdGenerator(people.length + 1));
+  const [getId, setGetId] = useState<() => number>(() =>
+    getIdGenerator(people.length + 1),
+  );
 
   useEffect(() => {
     let cancelled = false;

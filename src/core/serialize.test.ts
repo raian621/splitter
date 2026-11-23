@@ -20,22 +20,24 @@ const sampleLedger: Ledger = {
 };
 
 describe("serializeLedger", () => {
-  it("returns a URL-safe base64 string", () => {
-    const serialized = serializeLedger(sampleLedger);
+  it("returns a URL-safe base64 string", async () => {
+    const serialized = await serializeLedger(sampleLedger);
 
+    expect(serialized).toBeTypeOf("string");
     expect(serialized).not.toContain("+");
     expect(serialized).not.toContain("/");
     expect(serialized).not.toContain("=");
   });
 
-  it("serializes an empty ledger", () => {
+  it("serializes an empty ledger", async () => {
     const emptyLedger: Ledger = { people: [], expenses: [] };
-    const serialized = serializeLedger(emptyLedger);
+    const serialized = await serializeLedger(emptyLedger);
 
+    expect(serialized).toBeTypeOf("string");
     expect(serialized.length).toBeGreaterThan(0);
   });
 
-  it("handles unicode characters in names and descriptions", () => {
+  it("handles unicode characters in names and descriptions", async () => {
     const ledger: Ledger = {
       people: [{ id: "1", name: "田中" }],
       expenses: [
@@ -50,27 +52,27 @@ describe("serializeLedger", () => {
       ],
     };
 
-    expect(() => serializeLedger(ledger)).not.toThrow();
+    await expect(serializeLedger(ledger)).resolves.not.toThrow();
   });
 });
 
 describe("deserializeLedger", () => {
-  it("round-trips a ledger through serialization", () => {
-    const serialized = serializeLedger(sampleLedger);
-    const deserialized = deserializeLedger(serialized);
+  it("round-trips a ledger through serialization", async () => {
+    const serialized = await serializeLedger(sampleLedger);
+    const deserialized = await deserializeLedger(serialized);
 
     expect(deserialized).toEqual(sampleLedger);
   });
 
-  it("round-trips an empty ledger", () => {
+  it("round-trips an empty ledger", async () => {
     const emptyLedger: Ledger = { people: [], expenses: [] };
-    const serialized = serializeLedger(emptyLedger);
-    const deserialized = deserializeLedger(serialized);
+    const serialized = await serializeLedger(emptyLedger);
+    const deserialized = await deserializeLedger(serialized);
 
     expect(deserialized).toEqual(emptyLedger);
   });
 
-  it("round-trips unicode characters", () => {
+  it("round-trips unicode characters", async () => {
     const ledger: Ledger = {
       people: [{ id: "1", name: "田中" }],
       expenses: [
@@ -85,13 +87,13 @@ describe("deserializeLedger", () => {
       ],
     };
 
-    const serialized = serializeLedger(ledger);
-    const deserialized = deserializeLedger(serialized);
+    const serialized = await serializeLedger(ledger);
+    const deserialized = await deserializeLedger(serialized);
 
     expect(deserialized).toEqual(ledger);
   });
 
-  it("round-trips an itemized ledger with fees", () => {
+  it("round-trips an itemized ledger with fees", async () => {
     const ledger: Ledger = {
       people: [
         { id: "1", name: "Alice" },
@@ -125,13 +127,32 @@ describe("deserializeLedger", () => {
       ],
     };
 
-    const serialized = serializeLedger(ledger);
-    const deserialized = deserializeLedger(serialized);
+    const serialized = await serializeLedger(ledger);
+    const deserialized = await deserializeLedger(serialized);
 
     expect(deserialized).toEqual(ledger);
   });
 
-  it("throws when given invalid input", () => {
-    expect(() => deserializeLedger("not-valid-base64!!!")).toThrow();
+  it("produces a smaller output than uncompressed JSON", async () => {
+    const ledger: Ledger = {
+      people: Array.from({ length: 10 }, (_, i) => ({ id: String(i), name: `Person ${i}` })),
+      expenses: Array.from({ length: 20 }, (_, i) => ({
+        id: `exp-${i}`,
+        description: `Expense ${i} with a fairly long description`,
+        amount: 12345,
+        payerId: "1",
+        participantIds: ["1", "2", "3"],
+        splitMethod: "equal" as const,
+      })),
+    };
+
+    const serialized = await serializeLedger(ledger);
+    const uncompressed = JSON.stringify(ledger);
+
+    expect(serialized.length).toBeLessThan(uncompressed.length);
+  });
+
+  it("throws when given invalid input", async () => {
+    await expect(deserializeLedger("not-valid-base64!!!")).rejects.toThrow();
   });
 });

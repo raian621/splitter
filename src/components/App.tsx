@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { computeBalancesFromExpenses, formatCents, getPersonName } from "../core/expense";
 import { deserializeLedger, serializeLedger } from "../core/serialize";
 import { settleDebts } from "../core/settlement";
@@ -18,38 +18,40 @@ const defaultPeople: Person[] = [
   { id: "3", name: "Carol" },
 ];
 
-function getInitialState() {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const ledgerParam = params.get("ledger");
-    if (ledgerParam) {
-      const ledger = deserializeLedger(ledgerParam);
-      return {
-        people: Array.isArray(ledger.people) ? ledger.people : defaultPeople,
-        expenses: Array.isArray(ledger.expenses) ? ledger.expenses : [],
-        error: null,
-      };
-    }
-  } catch {
-    return {
-      people: defaultPeople,
-      expenses: [],
-      error: "Could not load the shared bill. The link may be invalid or corrupted.",
-    };
-  }
-
-  return { people: defaultPeople, expenses: [], error: null };
-}
-
 function App() {
-  const initialState = useMemo(() => getInitialState(), []);
-  const [people, setPeople] = useState<Person[]>(initialState.people);
-  const [expenses, setExpenses] = useState<Expense[]>(initialState.expenses);
+  const [people, setPeople] = useState<Person[]>(defaultPeople);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
   const [breakdownExpense, setBreakdownExpense] = useState<Expense | undefined>(undefined);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
-  const [urlError] = useState<string | null>(initialState.error);
+  const [urlError, setUrlError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadLedger() {
+      const params = new URLSearchParams(window.location.search);
+      const ledgerParam = params.get("ledger");
+      if (!ledgerParam) return;
+
+      try {
+        const ledger = await deserializeLedger(ledgerParam);
+        if (cancelled) return;
+        setPeople(Array.isArray(ledger.people) ? ledger.people : defaultPeople);
+        setExpenses(Array.isArray(ledger.expenses) ? ledger.expenses : []);
+      } catch {
+        if (cancelled) return;
+        setUrlError("Could not load the shared bill. The link may be invalid or corrupted.");
+      }
+    }
+
+    loadLedger();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const balances = useMemo(() => computeBalancesFromExpenses(expenses), [expenses]);
 
@@ -115,7 +117,7 @@ function App() {
 
   const handleShare = async () => {
     const ledger: Ledger = { people, expenses };
-    const serialized = serializeLedger(ledger);
+    const serialized = await serializeLedger(ledger);
     const url = new URL(window.location.href);
     url.search = `?ledger=${encodeURIComponent(serialized)}`;
 

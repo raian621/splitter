@@ -100,7 +100,7 @@ describe("App", () => {
     expect(screen.getByText("owes $10.00")).toBeInTheDocument();
   });
 
-  it("loads state from a ledger URL parameter", () => {
+  it("loads state from a ledger URL parameter", async () => {
     const ledger = {
       people: [
         { id: "1", name: "Alice" },
@@ -118,13 +118,14 @@ describe("App", () => {
       ],
     };
 
+    const serialized = await serializeLedger(ledger);
     const url = new URL(window.location.href);
-    url.search = `?ledger=${encodeURIComponent(serializeLedger(ledger))}`;
+    url.search = `?ledger=${encodeURIComponent(serialized)}`;
     window.history.replaceState({}, "", url.toString());
 
     render(<App />);
 
-    expect(screen.getByText("Shared ride")).toBeInTheDocument();
+    expect(await screen.findByText("Shared ride")).toBeInTheDocument();
     expect(screen.getByText("is owed $15.00")).toBeInTheDocument();
     expect(screen.getByText("owes $15.00")).toBeInTheDocument();
   });

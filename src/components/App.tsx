@@ -149,7 +149,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Splitter</h1>
+        <h1>Bill Splitter Tool</h1>
         <p>Split bills and settle debts with minimum transactions.</p>
       </header>
 
@@ -246,18 +246,18 @@ function App() {
           />
         </section>
 
-          <button
-            type="button"
-            className="button button-primary"
-            onClick={handleShare}
-          >
-            Share bill
-          </button>
-          {shareMessage !== null && (
-            <p className="share-message" role="status">
-              {shareMessage}
-            </p>
-          )}
+        <button
+          type="button"
+          className="button button-primary"
+          onClick={handleShare}
+        >
+          Share bill
+        </button>
+        {shareMessage !== null && (
+          <p className="share-message" role="status">
+            {shareMessage}
+          </p>
+       )}
       </main>
     </div>
   );

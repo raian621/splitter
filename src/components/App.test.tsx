@@ -129,6 +129,30 @@ describe("App", () => {
     expect(screen.getByText("owes $15.00")).toBeInTheDocument();
   });
 
+  it("shows a per-person breakdown for an expense", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Add expense" }));
+    fireEvent.change(screen.getByPlaceholderText("e.g. Dinner, Uber ride"), {
+      target: { value: "Taxi" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("0.00"), {
+      target: { value: "60" },
+    });
+    fireEvent.change(screen.getByLabelText("Paid by"), {
+      target: { value: "1" },
+    });
+    fireEvent.click(screen.getByLabelText("Bob"));
+    fireEvent.click(screen.getByLabelText("Carol"));
+    fireEvent.click(screen.getByRole("button", { name: "Save expense" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Breakdown" }));
+
+    expect(screen.getByText("Breakdown: Taxi")).toBeInTheDocument();
+    expect(screen.getByText("Each person owes")).toBeInTheDocument();
+    expect(screen.getAllByText("$20.00").length).toBeGreaterThanOrEqual(3);
+  });
+
   it("allows editing an existing expense", () => {
     render(<App />);
 

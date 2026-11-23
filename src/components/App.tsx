@@ -4,6 +4,7 @@ import { deserializeLedger, serializeLedger } from "../core/serialize";
 import { settleDebts } from "../core/settlement";
 import type { Expense, Ledger, Person } from "../core/types";
 import { BalancesView } from "./BalancesView";
+import { ExpenseBreakdownModal } from "./ExpenseBreakdownModal";
 import { ExpenseForm } from "./ExpenseForm";
 import { ExpenseList } from "./ExpenseList";
 import { Modal } from "./Modal";
@@ -46,6 +47,7 @@ function App() {
   const [expenses, setExpenses] = useState<Expense[]>(initialState.expenses);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
+  const [breakdownExpense, setBreakdownExpense] = useState<Expense | undefined>(undefined);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [urlError] = useState<string | null>(initialState.error);
 
@@ -87,6 +89,14 @@ function App() {
   const closeModal = () => {
     setIsExpenseModalOpen(false);
     setEditingExpense(undefined);
+  };
+
+  const openBreakdownModal = (expense: Expense) => {
+    setBreakdownExpense(expense);
+  };
+
+  const closeBreakdownModal = () => {
+    setBreakdownExpense(undefined);
   };
 
   const handleAddExpense = (expense: Expense) => {
@@ -200,6 +210,14 @@ function App() {
             people={people}
             onRemoveExpense={handleRemoveExpense}
             onEditExpense={openEditModal}
+            onViewBreakdown={openBreakdownModal}
+          />
+
+          <ExpenseBreakdownModal
+            expense={breakdownExpense}
+            people={people}
+            isOpen={breakdownExpense !== undefined}
+            onClose={closeBreakdownModal}
           />
         </section>
 

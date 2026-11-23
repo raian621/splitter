@@ -6,6 +6,7 @@ export type ExpenseListProps = {
   people: Person[];
   onRemoveExpense: (id: string) => void;
   onEditExpense: (expense: Expense) => void;
+  onViewBreakdown: (expense: Expense) => void;
 };
 
 export function ExpenseList({
@@ -13,6 +14,7 @@ export function ExpenseList({
   people,
   onRemoveExpense,
   onEditExpense,
+  onViewBreakdown,
 }: ExpenseListProps) {
   if (expenses.length === 0) {
     return (
@@ -77,6 +79,13 @@ export function ExpenseList({
           )}
 
           <div className="expense-actions">
+            <button
+              type="button"
+              className="button button-small"
+              onClick={() => onViewBreakdown(expense)}
+            >
+              Breakdown
+            </button>
             <button
               type="button"
               className="button button-small"

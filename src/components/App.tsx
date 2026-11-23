@@ -75,7 +75,7 @@ function App() {
     return () => {
       cancelled = true;
     };
-  });
+  }, []); // oxlint-disable-line react-hooks/exhaustive-deps
 
   const balances = useMemo(
     () => computeBalancesFromExpenses(expenses),

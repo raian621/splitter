@@ -38,7 +38,6 @@ function App() {
   const [getId, setGetId] = useState<() => number>(() => getIdGenerator(people.length + 1));
 
   useEffect(() => {
-    console.log("rerendered")
     let cancelled = false;
 
     async function loadLedger() {

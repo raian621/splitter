@@ -175,7 +175,14 @@ describe("splitExpense with itemized method", () => {
       payerId: "alice",
       participantIds: [],
       splitMethod: "itemized",
-      items: [{ id: "item1", description: "Item", amount: 1000, consumerIds: ["bob"] }],
+      items: [
+        {
+          id: "item1",
+          description: "Item",
+          amount: 1000,
+          consumerIds: ["bob"],
+        },
+      ],
       fees: [],
     };
 
@@ -205,7 +212,9 @@ describe("splitExpense with itemized method", () => {
 
 describe("calculateItemizedTotal", () => {
   it("calculates total with fees", () => {
-    const items: Item[] = [{ id: "a", description: "A", amount: 10000, consumerIds: ["x"] }];
+    const items: Item[] = [
+      { id: "a", description: "A", amount: 10000, consumerIds: ["x"] },
+    ];
     const fees: Fee[] = [
       { id: "tax", description: "Tax", type: "rate", value: 0.0875 },
       { id: "tip", description: "Tip", type: "rate", value: 0.18 },
@@ -247,9 +256,24 @@ describe("calculateExpenseContributions", () => {
       participantIds: [],
       splitMethod: "itemized",
       items: [
-        { id: "burger", description: "Burger", amount: 1500, consumerIds: ["alice"] },
-        { id: "pizza", description: "Pizza", amount: 3000, consumerIds: ["bob", "carol"] },
-        { id: "salad", description: "Salad", amount: 5500, consumerIds: ["alice", "bob", "carol"] },
+        {
+          id: "burger",
+          description: "Burger",
+          amount: 1500,
+          consumerIds: ["alice"],
+        },
+        {
+          id: "pizza",
+          description: "Pizza",
+          amount: 3000,
+          consumerIds: ["bob", "carol"],
+        },
+        {
+          id: "salad",
+          description: "Salad",
+          amount: 5500,
+          consumerIds: ["alice", "bob", "carol"],
+        },
       ],
       fees: [
         { id: "tax", description: "Tax", type: "rate", value: 0.0875 },
@@ -272,12 +296,22 @@ describe("calculateExpenseContributions", () => {
 
 describe("calculateFeeTotal", () => {
   it("calculates rate-based fee from item total", () => {
-    const rateFee: Fee = { id: "tax", description: "Tax", type: "rate", value: 0.0875 };
+    const rateFee: Fee = {
+      id: "tax",
+      description: "Tax",
+      type: "rate",
+      value: 0.0875,
+    };
     expect(calculateFeeTotal(10000, rateFee)).toBe(875);
   });
 
   it("returns fixed amount for amount-based fee", () => {
-    const amountFee: Fee = { id: "service", description: "Service", type: "amount", value: 500 };
+    const amountFee: Fee = {
+      id: "service",
+      description: "Service",
+      type: "amount",
+      value: 500,
+    };
     expect(calculateFeeTotal(10000, amountFee)).toBe(500);
   });
 });
@@ -306,7 +340,9 @@ describe("validateExpense", () => {
       splitMethod: "equal",
     };
 
-    expect(validateExpense(expense)).toBe("At least one participant is required");
+    expect(validateExpense(expense)).toBe(
+      "At least one participant is required",
+    );
   });
 
   it("returns error when payer is not a participant", () => {

@@ -30,7 +30,9 @@ export function ExpenseList({
         <li key={expense.id} className="expense-card">
           <div className="expense-info">
             <span className="expense-description">{expense.description}</span>
-            <span className="expense-amount">{formatCents(expense.amount)}</span>
+            <span className="expense-amount">
+              {formatCents(expense.amount)}
+            </span>
           </div>
           <div className="expense-meta">
             Paid by <strong>{getPersonName(people, expense.payerId)}</strong> ·{" "}
@@ -50,7 +52,9 @@ export function ExpenseList({
                         <span>{item.description || "Untitled item"}</span>
                         <span>{formatCents(item.amount)}</span>
                         <span className="breakdown-consumers">
-                          {item.consumerIds.map((id) => getPersonName(people, id)).join(", ")}
+                          {item.consumerIds
+                            .map((id) => getPersonName(people, id))
+                            .join(", ")}
                         </span>
                       </li>
                     ))}

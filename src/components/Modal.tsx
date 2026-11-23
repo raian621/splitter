@@ -56,10 +56,20 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
       onClick={handleOverlayClick}
       role="presentation"
     >
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
         <div className="modal-header">
           <h2 id="modal-title">{title}</h2>
-          <button type="button" className="modal-close" onClick={onClose} aria-label="Close modal">
+          <button
+            type="button"
+            className="modal-close"
+            onClick={onClose}
+            aria-label="Close modal"
+          >
             ×
           </button>
         </div>

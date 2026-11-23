@@ -135,7 +135,10 @@ describe("deserializeLedger", () => {
 
   it("produces a smaller output than uncompressed JSON", async () => {
     const ledger: Ledger = {
-      people: Array.from({ length: 10 }, (_, i) => ({ id: String(i), name: `Person ${i}` })),
+      people: Array.from({ length: 10 }, (_, i) => ({
+        id: String(i),
+        name: `Person ${i}`,
+      })),
       expenses: Array.from({ length: 20 }, (_, i) => ({
         id: `exp-${i}`,
         description: `Expense ${i} with a fairly long description`,

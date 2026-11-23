@@ -22,7 +22,9 @@ describe("settleDebts", () => {
       { personId: "bob", amount: -5000 },
     ];
 
-    expect(settleDebts(balances)).toEqual([{ from: "bob", to: "alice", amount: 5000 }]);
+    expect(settleDebts(balances)).toEqual([
+      { from: "bob", to: "alice", amount: 5000 },
+    ]);
   });
 
   it("settles debts among multiple people with minimal transactions", () => {

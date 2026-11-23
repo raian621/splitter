@@ -1,4 +1,8 @@
-import { calculateExpenseContributions, formatCents, getPersonName } from "../core/expense";
+import {
+  calculateExpenseContributions,
+  formatCents,
+  getPersonName,
+} from "../core/expense";
 import type { Expense, Person } from "../core/types";
 import "../styles/ExpenseBreakdownModal.css";
 import { Modal } from "./Modal";
@@ -21,7 +25,10 @@ export function ExpenseBreakdownModal({
   }
 
   const contributions = calculateExpenseContributions(expense);
-  const totalContributions = contributions.reduce((sum, c) => sum + c.amount, 0);
+  const totalContributions = contributions.reduce(
+    (sum, c) => sum + c.amount,
+    0,
+  );
 
   return (
     <Modal
@@ -32,7 +39,9 @@ export function ExpenseBreakdownModal({
       <div className="breakdown-modal">
         <div className="breakdown-modal-total">
           <span className="breakdown-modal-label">Total</span>
-          <span className="breakdown-modal-value">{formatCents(expense.amount)}</span>
+          <span className="breakdown-modal-value">
+            {formatCents(expense.amount)}
+          </span>
         </div>
 
         <h3 className="breakdown-modal-heading">Each person owes</h3>
@@ -42,14 +51,18 @@ export function ExpenseBreakdownModal({
               <span className="breakdown-modal-name">
                 {getPersonName(people, contribution.personId)}
               </span>
-              <span className="breakdown-modal-amount">{formatCents(contribution.amount)}</span>
+              <span className="breakdown-modal-amount">
+                {formatCents(contribution.amount)}
+              </span>
             </li>
           ))}
         </ul>
 
         <div className="breakdown-modal-total breakdown-modal-total--subtle">
           <span className="breakdown-modal-label">Sum of contributions</span>
-          <span className="breakdown-modal-value">{formatCents(totalContributions)}</span>
+          <span className="breakdown-modal-value">
+            {formatCents(totalContributions)}
+          </span>
         </div>
       </div>
     </Modal>

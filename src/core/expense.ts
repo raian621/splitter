@@ -110,7 +110,10 @@ export function calculateFeeShares(
   fees: Fee[],
 ): Map<string, number> {
   const feeShares = new Map<string, number>();
-  const totalItemAmount = Array.from(itemShares.values()).reduce((sum, amount) => sum + amount, 0);
+  const totalItemAmount = Array.from(itemShares.values()).reduce(
+    (sum, amount) => sum + amount,
+    0,
+  );
 
   if (totalItemAmount === 0) {
     return feeShares;
@@ -131,13 +134,22 @@ export function calculateFeeShares(
 
 export function calculateItemizedTotal(items: Item[], fees: Fee[]): number {
   const itemTotal = items.reduce((sum, item) => sum + item.amount, 0);
-  const feeTotal = fees.reduce((sum, fee) => sum + calculateFeeTotal(itemTotal, fee), 0);
+  const feeTotal = fees.reduce(
+    (sum, fee) => sum + calculateFeeTotal(itemTotal, fee),
+    0,
+  );
   return itemTotal + feeTotal;
 }
 
-function distributeAmount(amount: number, weights: Map<string, number>): Map<string, number> {
+function distributeAmount(
+  amount: number,
+  weights: Map<string, number>,
+): Map<string, number> {
   const result = new Map<string, number>();
-  const totalWeight = Array.from(weights.values()).reduce((sum, weight) => sum + weight, 0);
+  const totalWeight = Array.from(weights.values()).reduce(
+    (sum, weight) => sum + weight,
+    0,
+  );
 
   if (totalWeight === 0) {
     return result;

@@ -7,7 +7,11 @@ export type PeopleManagerProps = {
   onRemovePerson: (id: string) => void;
 };
 
-export function PeopleManager({ people, onAddPerson, onRemovePerson }: PeopleManagerProps) {
+export function PeopleManager({
+  people,
+  onAddPerson,
+  onRemovePerson,
+}: PeopleManagerProps) {
   const [name, setName] = useState("");
 
   const handleSubmit = (event: React.FormEvent) => {

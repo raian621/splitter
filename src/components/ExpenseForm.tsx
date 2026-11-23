@@ -1,5 +1,9 @@
 import { useMemo, useState } from "react";
-import { calculateItemizedTotal, formatCents, validateExpense } from "../core/expense";
+import {
+  calculateItemizedTotal,
+  formatCents,
+  validateExpense,
+} from "../core/expense";
 import type { Expense, Fee, Item, Person } from "../core/types";
 
 export type ExpenseFormProps = {
@@ -10,11 +14,21 @@ export type ExpenseFormProps = {
 };
 
 function createEmptyItem(): Item {
-  return { id: crypto.randomUUID(), description: "", amount: 0, consumerIds: [] };
+  return {
+    id: crypto.randomUUID(),
+    description: "",
+    amount: 0,
+    consumerIds: [],
+  };
 }
 
 function createDefaultFee(): Fee {
-  return { id: crypto.randomUUID(), description: "Tax", type: "rate", value: 0.0875 };
+  return {
+    id: crypto.randomUUID(),
+    description: "Tax",
+    type: "rate",
+    value: 0.0875,
+  };
 }
 
 function initializeState(expenseToEdit: Expense | undefined) {
@@ -73,15 +87,20 @@ export function ExpenseForm({
   onAddExpense,
   onUpdateExpense,
 }: ExpenseFormProps) {
-  const initialState = useMemo(() => initializeState(expenseToEdit), [expenseToEdit]);
+  const initialState = useMemo(
+    () => initializeState(expenseToEdit),
+    [expenseToEdit],
+  );
 
   const [description, setDescription] = useState(initialState.description);
   const [amount, setAmount] = useState(initialState.amount);
   const [payerId, setPayerId] = useState(initialState.payerId);
-  const [splitMethod, setSplitMethod] = useState<"equal" | "itemized">(initialState.splitMethod);
-  const [selectedParticipantIds, setSelectedParticipantIds] = useState<string[]>(
-    initialState.selectedParticipantIds,
+  const [splitMethod, setSplitMethod] = useState<"equal" | "itemized">(
+    initialState.splitMethod,
   );
+  const [selectedParticipantIds, setSelectedParticipantIds] = useState<
+    string[]
+  >(initialState.selectedParticipantIds);
   const [items, setItems] = useState<Item[]>(initialState.items);
   const [fees, setFees] = useState<Fee[]>(initialState.fees);
   const [error, setError] = useState<string | null>(null);
@@ -109,7 +128,9 @@ export function ExpenseForm({
   };
 
   const updateItem = (id: string, updates: Partial<Item>) => {
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates } : item)));
+    setItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updates } : item)),
+    );
   };
 
   const toggleItemConsumer = (itemId: string, personId: string) => {
@@ -133,7 +154,9 @@ export function ExpenseForm({
   };
 
   const updateFee = (id: string, updates: Partial<Fee>) => {
-    setFees((prev) => prev.map((fee) => (fee.id === id ? { ...fee, ...updates } : fee)));
+    setFees((prev) =>
+      prev.map((fee) => (fee.id === id ? { ...fee, ...updates } : fee)),
+    );
   };
 
   const addFee = () => {
@@ -163,11 +186,15 @@ export function ExpenseForm({
     setError(null);
 
     const amountInCents =
-      splitMethod === "itemized" ? calculatedItemizedTotal : Math.round(parseFloat(amount) * 100);
+      splitMethod === "itemized"
+        ? calculatedItemizedTotal
+        : Math.round(parseFloat(amount) * 100);
 
     const participantIds =
       splitMethod === "itemized"
-        ? Array.from(new Set([payerId, ...items.flatMap((item) => item.consumerIds)]))
+        ? Array.from(
+            new Set([payerId, ...items.flatMap((item) => item.consumerIds)]),
+          )
         : [payerId, ...selectedParticipantIds];
 
     const expense: Expense = {
@@ -221,7 +248,12 @@ export function ExpenseForm({
 
         <label className="form-field">
           <span className="form-label">Paid by</span>
-          <select value={payerId} onChange={handlePayerChange} className="input select" required>
+          <select
+            value={payerId}
+            onChange={handlePayerChange}
+            className="input select"
+            required
+          >
             <option value="">Select payer</option>
             {people.map((person) => (
               <option key={person.id} value={person.id}>
@@ -279,7 +311,9 @@ export function ExpenseForm({
                 {payerId && (
                   <label className="checkbox-label checkbox-label--payer">
                     <input type="checkbox" checked disabled readOnly />
-                    <span>{people.find((p) => p.id === payerId)?.name} (payer)</span>
+                    <span>
+                      {people.find((p) => p.id === payerId)?.name} (payer)
+                    </span>
                   </label>
                 )}
                 {availableParticipants.map((person) => (
@@ -305,7 +339,9 @@ export function ExpenseForm({
                     <input
                       type="text"
                       value={item.description}
-                      onChange={(e) => updateItem(item.id, { description: e.target.value })}
+                      onChange={(e) =>
+                        updateItem(item.id, { description: e.target.value })
+                      }
                       placeholder={`Item ${index + 1}`}
                       className="input item-description"
                       aria-label={`Item ${index + 1} description`}
@@ -326,11 +362,16 @@ export function ExpenseForm({
                     />
                     <div className="item-consumers">
                       {people.map((person) => (
-                        <label key={person.id} className="checkbox-label checkbox-label--compact">
+                        <label
+                          key={person.id}
+                          className="checkbox-label checkbox-label--compact"
+                        >
                           <input
                             type="checkbox"
                             checked={item.consumerIds.includes(person.id)}
-                            onChange={() => toggleItemConsumer(item.id, person.id)}
+                            onChange={() =>
+                              toggleItemConsumer(item.id, person.id)
+                            }
                           />
                           <span>{person.name}</span>
                         </label>
@@ -346,7 +387,11 @@ export function ExpenseForm({
                   </li>
                 ))}
               </ul>
-              <button type="button" className="button button-small" onClick={addItem}>
+              <button
+                type="button"
+                className="button button-small"
+                onClick={addItem}
+              >
                 + Add item
               </button>
             </div>
@@ -359,7 +404,9 @@ export function ExpenseForm({
                     <input
                       type="text"
                       value={fee.description}
-                      onChange={(e) => updateFee(fee.id, { description: e.target.value })}
+                      onChange={(e) =>
+                        updateFee(fee.id, { description: e.target.value })
+                      }
                       placeholder={`Fee ${index + 1}`}
                       className="input fee-description"
                       aria-label={`Fee ${index + 1} description`}
@@ -369,7 +416,10 @@ export function ExpenseForm({
                       onChange={(e) =>
                         updateFee(fee.id, {
                           type: e.target.value as "rate" | "amount",
-                          value: e.target.value === "rate" ? fee.value / 100 : fee.value * 100,
+                          value:
+                            e.target.value === "rate"
+                              ? fee.value / 100
+                              : fee.value * 100,
                         })
                       }
                       className="input fee-type"
@@ -382,11 +432,10 @@ export function ExpenseForm({
                       type="number"
                       min="0"
                       step="0.01"
-                      value={
-                        formatFloat(fee.type === "rate"
-                          ? (fee.value * 100)
-                          : (fee.value / 100), /*decimalPlaces=*/ 2)
-                      }
+                      value={formatFloat(
+                        fee.type === "rate" ? fee.value * 100 : fee.value / 100,
+                        /*decimalPlaces=*/ 2,
+                      )}
                       onChange={(e) =>
                         updateFee(fee.id, {
                           value:
@@ -409,14 +458,20 @@ export function ExpenseForm({
                   </li>
                 ))}
               </ul>
-              <button type="button" className="button button-small" onClick={addFee}>
+              <button
+                type="button"
+                className="button button-small"
+                onClick={addFee}
+              >
                 + Add fee
               </button>
             </div>
 
             <div className="itemized-total">
               <span className="itemized-total-label">Calculated total</span>
-              <span className="itemized-total-value">{formatCents(calculatedItemizedTotal)}</span>
+              <span className="itemized-total-value">
+                {formatCents(calculatedItemizedTotal)}
+              </span>
             </div>
           </>
         )}

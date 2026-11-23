@@ -46,7 +46,9 @@ describe("App", () => {
     expect(screen.getAllByText("owes $20.00").length).toBe(2);
 
     // Settlement appears
-    expect(screen.getByText("Minimum transactions to settle all debts:")).toBeInTheDocument();
+    expect(
+      screen.getByText("Minimum transactions to settle all debts:"),
+    ).toBeInTheDocument();
   });
 
   it("supports itemized splitting with proportional fees", () => {
@@ -76,7 +78,8 @@ describe("App", () => {
 
     // Add a second item for Bob
     fireEvent.click(screen.getByRole("button", { name: "+ Add item" }));
-    const item2Description = screen.getAllByLabelText(/Item \d+ description/)[1];
+    const item2Description =
+      screen.getAllByLabelText(/Item \d+ description/)[1];
     const item2Amount = screen.getAllByLabelText(/Item \d+ amount/)[1];
     fireEvent.change(item2Description, { target: { value: "Fries" } });
     fireEvent.change(item2Amount, { target: { value: "10" } });
@@ -92,7 +95,9 @@ describe("App", () => {
     // The itemized expense appears in the list
     expect(screen.getByText("Dinner")).toBeInTheDocument();
     expect(
-      screen.getByText((content) => content.includes("Split proportionally by items")),
+      screen.getByText((content) =>
+        content.includes("Split proportionally by items"),
+      ),
     ).toBeInTheDocument();
 
     // Alice paid $30 and owes $20 (her burger), so she is owed $10

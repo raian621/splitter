@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { computeBalancesFromExpenses, formatCents, getPersonName } from "../core/expense";
+import {
+  computeBalancesFromExpenses,
+  formatCents,
+  getPersonName,
+} from "../core/expense";
 import { deserializeLedger, serializeLedger } from "../core/serialize";
 import { settleDebts } from "../core/settlement";
 import type { Expense, Ledger, Person } from "../core/types";
@@ -22,8 +26,12 @@ function App() {
   const [people, setPeople] = useState<Person[]>(defaultPeople);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
-  const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
-  const [breakdownExpense, setBreakdownExpense] = useState<Expense | undefined>(undefined);
+  const [editingExpense, setEditingExpense] = useState<Expense | undefined>(
+    undefined,
+  );
+  const [breakdownExpense, setBreakdownExpense] = useState<Expense | undefined>(
+    undefined,
+  );
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [urlError, setUrlError] = useState<string | null>(null);
 
@@ -42,7 +50,9 @@ function App() {
         setExpenses(Array.isArray(ledger.expenses) ? ledger.expenses : []);
       } catch {
         if (cancelled) return;
-        setUrlError("Could not load the shared bill. The link may be invalid or corrupted.");
+        setUrlError(
+          "Could not load the shared bill. The link may be invalid or corrupted.",
+        );
       }
     }
 
@@ -53,7 +63,10 @@ function App() {
     };
   }, []);
 
-  const balances = useMemo(() => computeBalancesFromExpenses(expenses), [expenses]);
+  const balances = useMemo(
+    () => computeBalancesFromExpenses(expenses),
+    [expenses],
+  );
 
   const transactions = useMemo(() => settleDebts(balances), [balances]);
 
@@ -75,7 +88,9 @@ function App() {
 
   const handleRemovePerson = (id: string) => {
     setPeople((prev) => prev.filter((p) => p.id !== id));
-    setExpenses((prev) => prev.filter((e) => e.payerId !== id && !e.participantIds.includes(id)));
+    setExpenses((prev) =>
+      prev.filter((e) => e.payerId !== id && !e.participantIds.includes(id)),
+    );
   };
 
   const openAddModal = () => {
@@ -136,7 +151,11 @@ function App() {
       <header className="app-header">
         <h1>Splitter</h1>
         <p>Split bills and settle debts with minimum transactions.</p>
-        <button type="button" className="button button-primary" onClick={handleShare}>
+        <button
+          type="button"
+          className="button button-primary"
+          onClick={handleShare}
+        >
           Share bill
         </button>
         {shareMessage && <p className="share-message">{shareMessage}</p>}
@@ -170,7 +189,9 @@ function App() {
             </button>
           </div>
           {people.length < 2 ? (
-            <p className="hint">Add at least two people to create an expense.</p>
+            <p className="hint">
+              Add at least two people to create an expense.
+            </p>
           ) : (
             <p className="hint">Click the button to add a new expense.</p>
           )}

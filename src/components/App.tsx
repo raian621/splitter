@@ -193,7 +193,22 @@ function App() {
               Add at least two people to create an expense.
             </p>
           ) : (
-            <p className="hint">Click the button to add a new expense.</p>
+            <>
+              <ExpenseList
+                expenses={expenses}
+                people={people}
+                onRemoveExpense={handleRemoveExpense}
+                onEditExpense={openEditModal}
+                onViewBreakdown={openBreakdownModal}
+              />
+
+              <ExpenseBreakdownModal
+                expense={breakdownExpense}
+                people={people}
+                isOpen={breakdownExpense !== undefined}
+                onClose={closeBreakdownModal}
+              />
+            </>
           )}
         </section>
 
@@ -225,23 +240,6 @@ function App() {
             <span className="summary-label">Total</span>
             <span className="summary-value">{formatCents(totalExpenses)}</span>
           </div>
-        </section>
-
-        <section className="panel">
-          <ExpenseList
-            expenses={expenses}
-            people={people}
-            onRemoveExpense={handleRemoveExpense}
-            onEditExpense={openEditModal}
-            onViewBreakdown={openBreakdownModal}
-          />
-
-          <ExpenseBreakdownModal
-            expense={breakdownExpense}
-            people={people}
-            isOpen={breakdownExpense !== undefined}
-            onClose={closeBreakdownModal}
-          />
         </section>
 
         <section className="panel">

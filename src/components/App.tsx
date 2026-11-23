@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { computeBalancesFromExpenses, formatCents, getPersonName } from "../core/expense";
+import { deserializeLedger, serializeLedger } from "../core/serialize";
 import { settleDebts } from "../core/settlement";
-import type { Expense, Person } from "../core/types";
+import type { Expense, Ledger, Person } from "../core/types";
 import { BalancesView } from "./BalancesView";
 import { ExpenseForm } from "./ExpenseForm";
 import { ExpenseList } from "./ExpenseList";
@@ -10,15 +11,43 @@ import { PeopleManager } from "./PeopleManager";
 import { SettlementView } from "./SettlementView";
 import "../styles/App.css";
 
+const defaultPeople: Person[] = [
+  { id: "1", name: "Alice" },
+  { id: "2", name: "Bob" },
+  { id: "3", name: "Carol" },
+];
+
+function getInitialState() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const ledgerParam = params.get("ledger");
+    if (ledgerParam) {
+      const ledger = deserializeLedger(ledgerParam);
+      return {
+        people: Array.isArray(ledger.people) ? ledger.people : defaultPeople,
+        expenses: Array.isArray(ledger.expenses) ? ledger.expenses : [],
+        error: null,
+      };
+    }
+  } catch {
+    return {
+      people: defaultPeople,
+      expenses: [],
+      error: "Could not load the shared bill. The link may be invalid or corrupted.",
+    };
+  }
+
+  return { people: defaultPeople, expenses: [], error: null };
+}
+
 function App() {
-  const [people, setPeople] = useState<Person[]>([
-    { id: "1", name: "Alice" },
-    { id: "2", name: "Bob" },
-    { id: "3", name: "Carol" },
-  ]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const initialState = useMemo(() => getInitialState(), []);
+  const [people, setPeople] = useState<Person[]>(initialState.people);
+  const [expenses, setExpenses] = useState<Expense[]>(initialState.expenses);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const [urlError] = useState<string | null>(initialState.error);
 
   const balances = useMemo(() => computeBalancesFromExpenses(expenses), [expenses]);
 
@@ -74,14 +103,40 @@ function App() {
     setExpenses((prev) => prev.filter((e) => e.id !== id));
   };
 
+  const handleShare = async () => {
+    const ledger: Ledger = { people, expenses };
+    const serialized = serializeLedger(ledger);
+    const url = new URL(window.location.href);
+    url.search = `?ledger=${encodeURIComponent(serialized)}`;
+
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      setShareMessage("Link copied to clipboard!");
+      setTimeout(() => setShareMessage(null), 3000);
+    } catch {
+      setShareMessage("Could not copy link automatically.");
+      setTimeout(() => setShareMessage(null), 3000);
+    }
+  };
+
   return (
     <div className="app">
       <header className="app-header">
         <h1>Splitter</h1>
         <p>Split bills and settle debts with minimum transactions.</p>
+        <button type="button" className="button button-primary" onClick={handleShare}>
+          Share bill
+        </button>
+        {shareMessage && <p className="share-message">{shareMessage}</p>}
       </header>
 
       <main className="app-main">
+        {urlError && (
+          <section className="panel error-panel">
+            <p className="error">{urlError}</p>
+          </section>
+        )}
+
         <section className="panel">
           <PeopleManager
             people={people}

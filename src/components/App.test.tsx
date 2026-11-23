@@ -1,6 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { serializeLedger } from "../core/serialize";
 import App from "./App";
+
+beforeEach(() => {
+  vi.stubGlobal("navigator", { clipboard: { writeText: vi.fn() } });
+  window.history.replaceState({}, "", "/");
+});
 
 describe("App", () => {
   it("allows adding people and expenses, then shows settlement", () => {
@@ -92,6 +98,35 @@ describe("App", () => {
     // Alice paid $30 and owes $20 (her burger), so she is owed $10
     expect(screen.getByText("is owed $10.00")).toBeInTheDocument();
     expect(screen.getByText("owes $10.00")).toBeInTheDocument();
+  });
+
+  it("loads state from a ledger URL parameter", () => {
+    const ledger = {
+      people: [
+        { id: "1", name: "Alice" },
+        { id: "2", name: "Bob" },
+      ],
+      expenses: [
+        {
+          id: "exp-1",
+          description: "Shared ride",
+          amount: 3000,
+          payerId: "1",
+          participantIds: ["1", "2"],
+          splitMethod: "equal" as const,
+        },
+      ],
+    };
+
+    const url = new URL(window.location.href);
+    url.search = `?ledger=${encodeURIComponent(serializeLedger(ledger))}`;
+    window.history.replaceState({}, "", url.toString());
+
+    render(<App />);
+
+    expect(screen.getByText("Shared ride")).toBeInTheDocument();
+    expect(screen.getByText("is owed $15.00")).toBeInTheDocument();
+    expect(screen.getByText("owes $15.00")).toBeInTheDocument();
   });
 
   it("allows editing an existing expense", () => {

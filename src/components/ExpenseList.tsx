@@ -1,6 +1,6 @@
 import { formatCents, getPersonName } from "../core/expense";
 import type { Expense, Person } from "../core/types";
-import '../styles/ExpenseList.css'
+import "../styles/ExpenseList.css";
 
 export type ExpenseListProps = {
   expenses: Expense[];
@@ -46,20 +46,22 @@ export function ExpenseList({
             <div className="expense-breakdown">
               {expense.items && expense.items.length > 0 && (
                 <div className="breakdown-section">
-                  <h4>Items</h4>
-                  <ul>
+                  <table>
+                    <th>ITEM</th>
+                    <th>COST</th>
+                    <th>ORDERER</th>
                     {expense.items.map((item) => (
-                      <li key={item.id}>
-                        <span>{item.description || "Untitled item"}</span>
-                        <span>{formatCents(item.amount)}</span>
-                        <span className="breakdown-consumers">
+                      <tr key={item.id}>
+                        <td>{item.description || "Untitled item"}</td>
+                        <td>{formatCents(item.amount)}</td>
+                        <td className="breakdown-consumers">
                           {item.consumerIds
                             .map((id) => getPersonName(people, id))
                             .join(", ")}
-                        </span>
-                      </li>
+                        </td>
+                      </tr>
                     ))}
-                  </ul>
+                  </table>
                 </div>
               )}
 

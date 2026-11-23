@@ -70,6 +70,25 @@
   letter-spacing: 0.05em;
 }
 
+.breakdown-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.breakdown-section th {
+  text-align: left;
+}
+
+.breakdown-section th:last-child,
+.breakdown-section td:last-child {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.breakdown-section td:last-child {
+  text-align: right;
+}
+
 .breakdown-section ul {
   list-style: none;
   padding: 0;
@@ -77,6 +96,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+}
+
+.breakdown-section tr {
+  font-size: 0.95rem;
 }
 
 .breakdown-section li {

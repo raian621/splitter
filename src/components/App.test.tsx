@@ -31,10 +31,6 @@ describe("App", () => {
       target: { value: "1" },
     });
 
-    // Select Bob and Carol as additional participants
-    fireEvent.click(screen.getByLabelText("Bob"));
-    fireEvent.click(screen.getByLabelText("Carol"));
-
     fireEvent.click(screen.getByRole("button", { name: "Save expense" }));
 
     // Expense appears in list
@@ -42,8 +38,8 @@ describe("App", () => {
     expect(screen.getAllByText("$60.00").length).toBeGreaterThanOrEqual(1);
 
     // Balances appear
-    expect(screen.getByText("is owed $40.00")).toBeInTheDocument();
-    expect(screen.getAllByText("owes $20.00").length).toBe(2);
+    expect(screen.getByText("is owed $45.00")).toBeInTheDocument();
+    expect(screen.getAllByText("owes $15.00").length).toBe(3);
 
     // Settlement appears
     expect(
@@ -148,8 +144,6 @@ describe("App", () => {
     fireEvent.change(screen.getByLabelText("Paid by"), {
       target: { value: "1" },
     });
-    fireEvent.click(screen.getByLabelText("Bob"));
-    fireEvent.click(screen.getByLabelText("Carol"));
     fireEvent.click(screen.getByRole("button", { name: "Save expense" }));
 
     fireEvent.click(screen.getByRole("button", { name: "Breakdown" }));
@@ -173,8 +167,6 @@ describe("App", () => {
     fireEvent.change(screen.getByLabelText("Paid by"), {
       target: { value: "1" },
     });
-    fireEvent.click(screen.getByLabelText("Bob"));
-    fireEvent.click(screen.getByLabelText("Carol"));
     fireEvent.click(screen.getByRole("button", { name: "Save expense" }));
 
     // Edit the expense

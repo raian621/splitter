@@ -18,6 +18,7 @@ function App() {
   ]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
 
   const balances = useMemo(() => computeBalancesFromExpenses(expenses), [expenses]);
 
@@ -44,9 +45,29 @@ function App() {
     setExpenses((prev) => prev.filter((e) => e.payerId !== id && !e.participantIds.includes(id)));
   };
 
+  const openAddModal = () => {
+    setEditingExpense(undefined);
+    setIsExpenseModalOpen(true);
+  };
+
+  const openEditModal = (expense: Expense) => {
+    setEditingExpense(expense);
+    setIsExpenseModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsExpenseModalOpen(false);
+    setEditingExpense(undefined);
+  };
+
   const handleAddExpense = (expense: Expense) => {
     setExpenses((prev) => [...prev, expense]);
-    setIsExpenseModalOpen(false);
+    closeModal();
+  };
+
+  const handleUpdateExpense = (expense: Expense) => {
+    setExpenses((prev) => prev.map((e) => (e.id === expense.id ? expense : e)));
+    closeModal();
   };
 
   const handleRemoveExpense = (id: string) => {
@@ -75,7 +96,7 @@ function App() {
             <button
               type="button"
               className="button button-primary"
-              onClick={() => setIsExpenseModalOpen(true)}
+              onClick={openAddModal}
               disabled={people.length < 2}
             >
               Add expense
@@ -90,10 +111,16 @@ function App() {
 
         <Modal
           isOpen={isExpenseModalOpen}
-          onClose={() => setIsExpenseModalOpen(false)}
-          title="Add an expense"
+          onClose={closeModal}
+          title={editingExpense ? "Edit expense" : "Add an expense"}
         >
-          <ExpenseForm people={people} onAddExpense={handleAddExpense} />
+          <ExpenseForm
+            key={editingExpense?.id ?? "new"}
+            people={people}
+            expenseToEdit={editingExpense}
+            onAddExpense={handleAddExpense}
+            onUpdateExpense={handleUpdateExpense}
+          />
         </Modal>
 
         <section className="panel summary-panel">
@@ -113,7 +140,12 @@ function App() {
         </section>
 
         <section className="panel">
-          <ExpenseList expenses={expenses} people={people} onRemoveExpense={handleRemoveExpense} />
+          <ExpenseList
+            expenses={expenses}
+            people={people}
+            onRemoveExpense={handleRemoveExpense}
+            onEditExpense={openEditModal}
+          />
         </section>
 
         <section className="panel">

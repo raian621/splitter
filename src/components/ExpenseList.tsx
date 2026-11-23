@@ -5,9 +5,15 @@ export type ExpenseListProps = {
   expenses: Expense[];
   people: Person[];
   onRemoveExpense: (id: string) => void;
+  onEditExpense: (expense: Expense) => void;
 };
 
-export function ExpenseList({ expenses, people, onRemoveExpense }: ExpenseListProps) {
+export function ExpenseList({
+  expenses,
+  people,
+  onRemoveExpense,
+  onEditExpense,
+}: ExpenseListProps) {
   if (expenses.length === 0) {
     return (
       <div>
@@ -70,13 +76,22 @@ export function ExpenseList({ expenses, people, onRemoveExpense }: ExpenseListPr
             </div>
           )}
 
-          <button
-            type="button"
-            className="button button-small"
-            onClick={() => onRemoveExpense(expense.id)}
-          >
-            Remove
-          </button>
+          <div className="expense-actions">
+            <button
+              type="button"
+              className="button button-small"
+              onClick={() => onEditExpense(expense)}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              className="button button-small"
+              onClick={() => onRemoveExpense(expense.id)}
+            >
+              Remove
+            </button>
+          </div>
         </li>
       ))}
     </ul>

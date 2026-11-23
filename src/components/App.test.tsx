@@ -93,4 +93,38 @@ describe("App", () => {
     expect(screen.getByText("is owed $10.00")).toBeInTheDocument();
     expect(screen.getByText("owes $10.00")).toBeInTheDocument();
   });
+
+  it("allows editing an existing expense", () => {
+    render(<App />);
+
+    // Add an equal-split expense
+    fireEvent.click(screen.getByRole("button", { name: "Add expense" }));
+    fireEvent.change(screen.getByPlaceholderText("e.g. Dinner, Uber ride"), {
+      target: { value: "Taxi" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("0.00"), {
+      target: { value: "60" },
+    });
+    fireEvent.change(screen.getByLabelText("Paid by"), {
+      target: { value: "1" },
+    });
+    fireEvent.click(screen.getByLabelText("Bob"));
+    fireEvent.click(screen.getByLabelText("Carol"));
+    fireEvent.click(screen.getByRole("button", { name: "Save expense" }));
+
+    // Edit the expense
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    fireEvent.change(screen.getByPlaceholderText("e.g. Dinner, Uber ride"), {
+      target: { value: "Uber" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("0.00"), {
+      target: { value: "90" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Update expense" }));
+
+    // Updated expense and balances appear
+    expect(screen.getByText("Uber")).toBeInTheDocument();
+    expect(screen.getAllByText("$90.00").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("is owed $60.00")).toBeInTheDocument();
+  });
 });

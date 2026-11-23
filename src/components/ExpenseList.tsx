@@ -47,20 +47,26 @@ export function ExpenseList({
               {expense.items && expense.items.length > 0 && (
                 <div className="breakdown-section">
                   <table>
-                    <th>ITEM</th>
-                    <th>COST</th>
-                    <th>ORDERER</th>
-                    {expense.items.map((item) => (
-                      <tr key={item.id}>
-                        <td>{item.description || "Untitled item"}</td>
-                        <td>{formatCents(item.amount)}</td>
-                        <td className="breakdown-consumers">
-                          {item.consumerIds
-                            .map((id) => getPersonName(people, id))
-                            .join(", ")}
-                        </td>
+                    <thead>
+                      <tr>
+                        <th>ITEM</th>
+                        <th>COST</th>
+                        <th>ORDERER</th>
                       </tr>
-                    ))}
+                    </thead>
+                    <tbody>
+                      {expense.items.map((item) => (
+                        <tr key={item.id}>
+                          <td>{item.description || "Untitled item"}</td>
+                          <td>{formatCents(item.amount)}</td>
+                          <td className="breakdown-consumers">
+                            {item.consumerIds
+                              .map((id) => getPersonName(people, id))
+                              .join(", ")}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
                   </table>
                 </div>
               )}

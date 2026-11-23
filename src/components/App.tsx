@@ -257,7 +257,7 @@ function App() {
           <p className="share-message" role="status">
             {shareMessage}
           </p>
-       )}
+        )}
       </main>
     </div>
   );

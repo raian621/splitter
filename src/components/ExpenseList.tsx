@@ -1,23 +1,19 @@
-import { formatCents, getPersonName } from '../core/expense'
-import type { Expense, Person } from '../core/types'
+import { formatCents, getPersonName } from "../core/expense";
+import type { Expense, Person } from "../core/types";
 
 export type ExpenseListProps = {
-  expenses: Expense[]
-  people: Person[]
-  onRemoveExpense: (id: string) => void
-}
+  expenses: Expense[];
+  people: Person[];
+  onRemoveExpense: (id: string) => void;
+};
 
-export function ExpenseList({
-  expenses,
-  people,
-  onRemoveExpense,
-}: ExpenseListProps) {
+export function ExpenseList({ expenses, people, onRemoveExpense }: ExpenseListProps) {
   if (expenses.length === 0) {
     return (
       <div>
         <p className="hint">No expenses yet.</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -25,22 +21,17 @@ export function ExpenseList({
       {expenses.map((expense) => (
         <li key={expense.id} className="expense-card">
           <div className="expense-info">
-            <span className="expense-description">
-              {expense.description}
-            </span>
-            <span className="expense-amount">
-              {formatCents(expense.amount)}
-            </span>
+            <span className="expense-description">{expense.description}</span>
+            <span className="expense-amount">{formatCents(expense.amount)}</span>
           </div>
           <div className="expense-meta">
-            Paid by{' '}
-            <strong>{getPersonName(people, expense.payerId)}</strong> ·{' '}
-            {expense.splitMethod === 'equal'
+            Paid by <strong>{getPersonName(people, expense.payerId)}</strong> ·{" "}
+            {expense.splitMethod === "equal"
               ? `Split equally among ${expense.participantIds.length} people`
-              : 'Split proportionally by items'}
+              : "Split proportionally by items"}
           </div>
 
-          {expense.splitMethod === 'itemized' && (
+          {expense.splitMethod === "itemized" && (
             <div className="expense-breakdown">
               {expense.items && expense.items.length > 0 && (
                 <div className="breakdown-section">
@@ -48,12 +39,10 @@ export function ExpenseList({
                   <ul>
                     {expense.items.map((item) => (
                       <li key={item.id}>
-                        <span>{item.description || 'Untitled item'}</span>
+                        <span>{item.description || "Untitled item"}</span>
                         <span>{formatCents(item.amount)}</span>
                         <span className="breakdown-consumers">
-                          {item.consumerIds
-                            .map((id) => getPersonName(people, id))
-                            .join(', ')}
+                          {item.consumerIds.map((id) => getPersonName(people, id)).join(", ")}
                         </span>
                       </li>
                     ))}
@@ -67,9 +56,9 @@ export function ExpenseList({
                   <ul>
                     {expense.fees.map((fee) => (
                       <li key={fee.id}>
-                        <span>{fee.description || 'Untitled fee'}</span>
+                        <span>{fee.description || "Untitled fee"}</span>
                         <span>
-                          {fee.type === 'rate'
+                          {fee.type === "rate"
                             ? `${(fee.value * 100).toFixed(2)}%`
                             : formatCents(fee.value)}
                         </span>
@@ -91,5 +80,5 @@ export function ExpenseList({
         </li>
       ))}
     </ul>
-  )
+  );
 }

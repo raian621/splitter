@@ -1,68 +1,57 @@
-import { useMemo, useState } from 'react'
-import {
-  computeBalancesFromExpenses,
-  formatCents,
-  getPersonName,
-} from '../core/expense'
-import { settleDebts } from '../core/settlement'
-import type { Expense, Person } from '../core/types'
-import { BalancesView } from './BalancesView'
-import { ExpenseForm } from './ExpenseForm'
-import { ExpenseList } from './ExpenseList'
-import { Modal } from './Modal'
-import { PeopleManager } from './PeopleManager'
-import { SettlementView } from './SettlementView'
-import '../styles/App.css'
+import { useMemo, useState } from "react";
+import { computeBalancesFromExpenses, formatCents, getPersonName } from "../core/expense";
+import { settleDebts } from "../core/settlement";
+import type { Expense, Person } from "../core/types";
+import { BalancesView } from "./BalancesView";
+import { ExpenseForm } from "./ExpenseForm";
+import { ExpenseList } from "./ExpenseList";
+import { Modal } from "./Modal";
+import { PeopleManager } from "./PeopleManager";
+import { SettlementView } from "./SettlementView";
+import "../styles/App.css";
 
 function App() {
   const [people, setPeople] = useState<Person[]>([
-    { id: '1', name: 'Alice' },
-    { id: '2', name: 'Bob' },
-    { id: '3', name: 'Carol' },
-  ])
-  const [expenses, setExpenses] = useState<Expense[]>([])
-  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false)
+    { id: "1", name: "Alice" },
+    { id: "2", name: "Bob" },
+    { id: "3", name: "Carol" },
+  ]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
 
-  const balances = useMemo(
-    () => computeBalancesFromExpenses(expenses),
-    [expenses]
-  )
+  const balances = useMemo(() => computeBalancesFromExpenses(expenses), [expenses]);
 
-  const transactions = useMemo(() => settleDebts(balances), [balances])
+  const transactions = useMemo(() => settleDebts(balances), [balances]);
 
   const totalExpenses = useMemo(
     () => expenses.reduce((sum, expense) => sum + expense.amount, 0),
-    [expenses]
-  )
+    [expenses],
+  );
 
   const handleAddPerson = (name: string) => {
-    const trimmed = name.trim()
-    if (!trimmed) return
+    const trimmed = name.trim();
+    if (!trimmed) return;
 
     const newPerson: Person = {
       id: crypto.randomUUID(),
       name: trimmed,
-    }
-    setPeople((prev) => [...prev, newPerson])
-  }
+    };
+    setPeople((prev) => [...prev, newPerson]);
+  };
 
   const handleRemovePerson = (id: string) => {
-    setPeople((prev) => prev.filter((p) => p.id !== id))
-    setExpenses((prev) =>
-      prev.filter(
-        (e) => e.payerId !== id && !e.participantIds.includes(id)
-      )
-    )
-  }
+    setPeople((prev) => prev.filter((p) => p.id !== id));
+    setExpenses((prev) => prev.filter((e) => e.payerId !== id && !e.participantIds.includes(id)));
+  };
 
   const handleAddExpense = (expense: Expense) => {
-    setExpenses((prev) => [...prev, expense])
-    setIsExpenseModalOpen(false)
-  }
+    setExpenses((prev) => [...prev, expense]);
+    setIsExpenseModalOpen(false);
+  };
 
   const handleRemoveExpense = (id: string) => {
-    setExpenses((prev) => prev.filter((e) => e.id !== id))
-  }
+    setExpenses((prev) => prev.filter((e) => e.id !== id));
+  };
 
   return (
     <div className="app">
@@ -124,11 +113,7 @@ function App() {
         </section>
 
         <section className="panel">
-          <ExpenseList
-            expenses={expenses}
-            people={people}
-            onRemoveExpense={handleRemoveExpense}
-          />
+          <ExpenseList expenses={expenses} people={people} onRemoveExpense={handleRemoveExpense} />
         </section>
 
         <section className="panel">
@@ -144,7 +129,7 @@ function App() {
         </section>
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

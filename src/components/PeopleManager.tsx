@@ -1,24 +1,20 @@
-import { useState } from 'react'
-import type { Person } from '../core/types'
+import { useState } from "react";
+import type { Person } from "../core/types";
 
 export type PeopleManagerProps = {
-  people: Person[]
-  onAddPerson: (name: string) => void
-  onRemovePerson: (id: string) => void
-}
+  people: Person[];
+  onAddPerson: (name: string) => void;
+  onRemovePerson: (id: string) => void;
+};
 
-export function PeopleManager({
-  people,
-  onAddPerson,
-  onRemovePerson,
-}: PeopleManagerProps) {
-  const [name, setName] = useState('')
+export function PeopleManager({ people, onAddPerson, onRemovePerson }: PeopleManagerProps) {
+  const [name, setName] = useState("");
 
   const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault()
-    onAddPerson(name)
-    setName('')
-  }
+    event.preventDefault();
+    onAddPerson(name);
+    setName("");
+  };
 
   return (
     <div>
@@ -53,5 +49,5 @@ export function PeopleManager({
         ))}
       </ul>
     </div>
-  )
+  );
 }

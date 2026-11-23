@@ -50,7 +50,9 @@
   border: 3px solid var(--border);
   box-shadow: 4px 4px 0 0 var(--border);
   cursor: pointer;
-  transition: transform 0.05s ease, box-shadow 0.05s ease;
+  transition:
+    transform 0.05s ease,
+    box-shadow 0.05s ease;
 }
 
 .button:hover {
@@ -193,7 +195,7 @@
   background: var(--white);
 }
 
-.checkbox-label input[type='checkbox'] {
+.checkbox-label input[type="checkbox"] {
   width: 1.25rem;
   height: 1.25rem;
   accent-color: var(--accent);
@@ -404,7 +406,7 @@
   cursor: pointer;
 }
 
-.radio-label input[type='radio'] {
+.radio-label input[type="radio"] {
   width: 1.25rem;
   height: 1.25rem;
   accent-color: var(--accent);

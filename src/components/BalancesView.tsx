@@ -1,13 +1,13 @@
-import { formatCents, getPersonName } from '../core/expense'
-import type { Balance, Person } from '../core/types'
+import { formatCents, getPersonName } from "../core/expense";
+import type { Balance, Person } from "../core/types";
 
 export type BalancesViewProps = {
-  balances: Balance[]
-  people: Person[]
-}
+  balances: Balance[];
+  people: Person[];
+};
 
 export function BalancesView({ balances, people }: BalancesViewProps) {
-  const sortedBalances = [...balances].sort((a, b) => b.amount - a.amount)
+  const sortedBalances = [...balances].sort((a, b) => b.amount - a.amount);
 
   return (
     <div>
@@ -17,16 +17,14 @@ export function BalancesView({ balances, people }: BalancesViewProps) {
       ) : (
         <ul className="balance-list">
           {sortedBalances.map((balance) => {
-            const name = getPersonName(people, balance.personId)
-            const isOwed = balance.amount > 0
-            const isOwes = balance.amount < 0
+            const name = getPersonName(people, balance.personId);
+            const isOwed = balance.amount > 0;
+            const isOwes = balance.amount < 0;
 
             return (
               <li
                 key={balance.personId}
-                className={`balance-row ${
-                  isOwed ? 'balance-owed' : isOwes ? 'balance-owes' : ''
-                }`}
+                className={`balance-row ${isOwed ? "balance-owed" : isOwes ? "balance-owes" : ""}`}
               >
                 <span className="balance-name">{name}</span>
                 <span className="balance-amount">
@@ -34,13 +32,13 @@ export function BalancesView({ balances, people }: BalancesViewProps) {
                     ? `is owed ${formatCents(balance.amount)}`
                     : isOwes
                       ? `owes ${formatCents(Math.abs(balance.amount))}`
-                      : 'settled up'}
+                      : "settled up"}
                 </span>
               </li>
-            )
+            );
           })}
         </ul>
       )}
     </div>
-  )
+  );
 }

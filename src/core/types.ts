@@ -40,3 +40,9 @@ export type Transaction = {
   to: string; // personId who receives
   amount: number; // always positive, in cents
 };
+
+// Holds the initial state of the expenses between parties.
+export type Ledger = {
+  people: Person[]; // The parties involved,
+  expenses: Expense[]; // The expenses owed between parties.
+};

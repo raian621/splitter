@@ -49,6 +49,24 @@ function initializeState(expenseToEdit: Expense | undefined) {
   };
 }
 
+function formatFloat(numFloat: number, decimalPlaces: number): string {
+  const numStr = numFloat.toFixed(decimalPlaces);
+
+  // decimal without trailing zeros:
+  if (!numStr.endsWith("0")) {
+    return numStr;
+  }
+
+  // whole number:
+  const wholeNumberRegex = /\d\.0+$/;
+  if (wholeNumberRegex.test(numStr)) {
+    return numStr.replace(/\.0+$/, "");
+  }
+
+  // decimal with trailing zeros:
+  return numStr.replace(/0+$/, "");
+}
+
 export function ExpenseForm({
   people,
   expenseToEdit,
@@ -365,9 +383,9 @@ export function ExpenseForm({
                       min="0"
                       step="0.01"
                       value={
-                        fee.type === "rate"
-                          ? (fee.value * 100).toFixed(2)
-                          : (fee.value / 100).toFixed(2)
+                        formatFloat(fee.type === "rate"
+                          ? (fee.value * 100)
+                          : (fee.value / 100), /*decimalPlaces=*/ 2)
                       }
                       onChange={(e) =>
                         updateFee(fee.id, {

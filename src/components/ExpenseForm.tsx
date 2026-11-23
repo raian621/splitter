@@ -32,7 +32,6 @@ function createDefaultFee(): Fee {
 }
 
 function initializeState(expenseToEdit: Expense | undefined, people: Person[]) {
-  console.log("initializing state...", expenseToEdit, people);
   if (!expenseToEdit) {
     return {
       description: "",

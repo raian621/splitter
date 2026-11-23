@@ -11,27 +11,32 @@ export type ExpenseFormProps = {
   expenseToEdit?: Expense;
   onAddExpense: (expense: Expense) => void;
   onUpdateExpense: (expense: Expense) => void;
+  getId: () => number;
 };
 
-function createEmptyItem(): Item {
+function createEmptyItem(getId: () => number): Item {
   return {
-    id: crypto.randomUUID(),
+    id: getId().toString(),
     description: "",
     amount: 0,
     consumerIds: [],
   };
 }
 
-function createDefaultFee(): Fee {
+function createDefaultFee(getId: () => number): Fee {
   return {
-    id: crypto.randomUUID(),
+    id: getId().toString(),
     description: "Tax",
     type: "rate",
     value: 0.0875,
   };
 }
 
-function initializeState(expenseToEdit: Expense | undefined, people: Person[]) {
+function initializeState(
+  expenseToEdit: Expense | undefined,
+  people: Person[],
+  getId: () => number,
+) {
   if (!expenseToEdit) {
     return {
       description: "",
@@ -39,8 +44,8 @@ function initializeState(expenseToEdit: Expense | undefined, people: Person[]) {
       payerId: "",
       splitMethod: "equal" as const,
       selectedParticipantIds: people.map((p) => p.id) as string[],
-      items: [createEmptyItem()],
-      fees: [createDefaultFee()],
+      items: [createEmptyItem(getId)],
+      fees: [createDefaultFee(getId)],
     };
   }
 
@@ -55,11 +60,11 @@ function initializeState(expenseToEdit: Expense | undefined, people: Person[]) {
     items:
       expenseToEdit.items && expenseToEdit.items.length > 0
         ? expenseToEdit.items
-        : [createEmptyItem()],
+        : [createEmptyItem(getId)],
     fees:
       expenseToEdit.fees && expenseToEdit.fees.length > 0
         ? expenseToEdit.fees
-        : [createDefaultFee()],
+        : [createDefaultFee(getId)],
   };
 }
 
@@ -86,10 +91,11 @@ export function ExpenseForm({
   expenseToEdit,
   onAddExpense,
   onUpdateExpense,
+  getId,
 }: ExpenseFormProps) {
   const initialState = useMemo(
-    () => initializeState(expenseToEdit, people),
-    [expenseToEdit, people],
+    () => initializeState(expenseToEdit, people, getId),
+    [expenseToEdit, people, getId],
   );
 
   const [description, setDescription] = useState(initialState.description);
@@ -146,7 +152,7 @@ export function ExpenseForm({
   };
 
   const addItem = () => {
-    setItems((prev) => [...prev, createEmptyItem()]);
+    setItems((prev) => [...prev, createEmptyItem(getId)]);
   };
 
   const removeItem = (id: string) => {
@@ -162,7 +168,7 @@ export function ExpenseForm({
   const addFee = () => {
     setFees((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), description: "", type: "rate", value: 0 },
+      { id: getId().toString(), description: "", type: "rate", value: 0 },
     ]);
   };
 
@@ -175,8 +181,8 @@ export function ExpenseForm({
     setAmount("");
     setPayerId("");
     setSelectedParticipantIds([]);
-    setItems([createEmptyItem()]);
-    setFees([createDefaultFee()]);
+    setItems([createEmptyItem(getId)]);
+    setFees([createDefaultFee(getId)]);
     setSplitMethod("equal");
     setError(null);
   };
@@ -198,7 +204,7 @@ export function ExpenseForm({
         : [payerId, ...selectedParticipantIds];
 
     const expense: Expense = {
-      id: expenseToEdit?.id ?? crypto.randomUUID(),
+      id: expenseToEdit?.id ?? getId().toString(),
       description: description.trim() || "Expense",
       amount: amountInCents,
       payerId,

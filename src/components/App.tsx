@@ -15,6 +15,7 @@ import { Modal } from "./Modal";
 import { PeopleManager } from "./PeopleManager";
 import { SettlementView } from "./SettlementView";
 import "../styles/App.css";
+import { getIdGenerator } from "../core/id-util";
 
 const defaultPeople: Person[] = [
   { id: "1", name: "Alice" },
@@ -34,8 +35,10 @@ function App() {
   );
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [urlError, setUrlError] = useState<string | null>(null);
+  const [getId, setGetId] = useState<() => number>(() => getIdGenerator(people.length + 1));
 
   useEffect(() => {
+    console.log("rerendered")
     let cancelled = false;
 
     async function loadLedger() {
@@ -48,6 +51,16 @@ function App() {
         if (cancelled) return;
         setPeople(Array.isArray(ledger.people) ? ledger.people : defaultPeople);
         setExpenses(Array.isArray(ledger.expenses) ? ledger.expenses : []);
+        const maxLedgerId = Math.max(
+          ...people
+            .map((p) => p.id)
+            .concat(expenses.map((e) => e.id))
+            .map((strId) => {
+              const maybeInt = parseInt(strId);
+              return Number.isNaN(maybeInt) ? 0 : maybeInt;
+            }),
+        );
+        setGetId(() => getIdGenerator(maxLedgerId));
       } catch {
         if (cancelled) return;
         setUrlError(
@@ -61,7 +74,7 @@ function App() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  });
 
   const balances = useMemo(
     () => computeBalancesFromExpenses(expenses),
@@ -80,7 +93,7 @@ function App() {
     if (!trimmed) return;
 
     const newPerson: Person = {
-      id: crypto.randomUUID(),
+      id: getId().toString(),
       name: trimmed,
     };
     setPeople((prev) => [...prev, newPerson]);
@@ -215,6 +228,7 @@ function App() {
             expenseToEdit={editingExpense}
             onAddExpense={handleAddExpense}
             onUpdateExpense={handleUpdateExpense}
+            getId={getId}
           />
         </Modal>
 

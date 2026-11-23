@@ -12,6 +12,7 @@ import { ExpenseList } from './ExpenseList'
 import { Modal } from './Modal'
 import { PeopleManager } from './PeopleManager'
 import { SettlementView } from './SettlementView'
+import '../styles/App.css'
 
 function App() {
   const [people, setPeople] = useState<Person[]>([

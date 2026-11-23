@@ -1,5 +1,6 @@
 import { formatCents, getPersonName } from "../core/expense";
 import type { Expense, Person } from "../core/types";
+import '../styles/ExpenseList.css'
 
 export type ExpenseListProps = {
   expenses: Expense[];

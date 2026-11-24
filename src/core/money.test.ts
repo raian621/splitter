@@ -64,5 +64,28 @@ describe("Money class tests", () => {
           expect(m.valid(), `units: ${m.units}, nanos: ${m.nanos}`).toBe(false);
         });
     });
+
+    it("should return true for zero Money", () => {
+      expect(new Money(0, 0).valid()).toBe(true);
+    });
+  });
+
+  describe("neg", () => {
+    it("should return a valid Money with negated components", () => {
+      const money = new Money(1, 67_000_000);
+      const expected = new Money(-1, -67_000_000);
+      const actual = money.neg();
+
+      expect(actual.valid()).toBe(true);
+      expect(actual).toEqual(expected);
+    });
+
+    it("should return 0 Money for 0 Money input", () => {
+      const zeroMoney = new Money(0, 0);
+      const actual = zeroMoney.neg();
+
+      expect(actual).toEqual(zeroMoney);
+      expect(actual.valid()).toBe(true);
+    });
   });
 });

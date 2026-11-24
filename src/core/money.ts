@@ -36,4 +36,11 @@ export class Money {
   neg(): Money {
     return new Money(-this.units + 0, -this.nanos + 0);
   }
+
+  static cmp(a: Money, b: Money): number {
+    if (a.units === b.units) {
+      return a.nanos - b.nanos;
+    }
+    return a.units - b.units;
+  }
 }

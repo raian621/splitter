@@ -88,4 +88,18 @@ describe("Money class tests", () => {
       expect(actual.valid()).toBe(true);
     });
   });
+
+  describe("cmp", () => {
+    it("should order Money objects in ascending order", () => {
+      const smallest = new Money(-1, -67_000_000);
+      const middle = new Money(0, 0);
+      const largest = new Money(1, 67_000_000);
+
+      expect([largest, middle, smallest].sort(Money.cmp)).toEqual([
+        smallest,
+        middle,
+        largest,
+      ]);
+    });
+  });
 });

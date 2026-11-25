@@ -110,4 +110,48 @@ describe("Money class tests", () => {
     expect(negative.abs()).toEqual(positive);
     expect(positive.abs()).toEqual(positive);
   });
+
+  describe("add", () => {
+    it("should handle positive inputs", () => {
+      expect(Money.add(new Money(1, 2), new Money(3, 4))).toEqual(
+        new Money(4, 6),
+      );
+    });
+
+    it("should handle nano overflow", () => {
+      expect(Money.add(new Money(0, 999_999_999), new Money(0, 2))).toEqual(
+        new Money(1, 1),
+      );
+    });
+
+    it("should handle nano underflow", () => {
+      expect(Money.add(new Money(1, 1), new Money(0, -2))).toEqual(
+        new Money(0, 999_999_999),
+      );
+    });
+
+    it("should handle negative result", () => {
+      expect(Money.add(new Money(0, 1), new Money(0, -2))).toEqual(
+        new Money(0, -1),
+      );
+    });
+
+    it("should handle negative inputs", () => {
+      expect(Money.add(new Money(-1, -2), new Money(-3, -4))).toEqual(
+        new Money(-4, -6),
+      );
+    });
+
+    it("should handle negative nano overflow", () => {
+      expect(Money.add(new Money(0, -999_999_999), new Money(0, -2))).toEqual(
+        new Money(-1, -1),
+      );
+    });
+
+    it("should handle negative nano underflow", () => {
+      expect(Money.add(new Money(-1, -1), new Money(0, 2))).toEqual(
+        new Money(0, -999_999_999),
+      );
+    });
+  });
 });

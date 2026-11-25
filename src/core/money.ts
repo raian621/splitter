@@ -47,4 +47,22 @@ export class Money {
     }
     return a.units - b.units;
   }
+
+  static add(a: Money, b: Money): Money {
+    let units = a.units + b.units;
+    let nanos = a.nanos + b.nanos;
+
+    if (nanos >= NANOS_PER_UNIT || (units < 0 && nanos > 0)) {
+      // nano overflows into units:
+      units += 1;
+      nanos -= NANOS_PER_UNIT;
+    } else if (nanos <= -NANOS_PER_UNIT || (units > 0 && nanos < 0)) {
+      // nano underflows into units:
+      units -= 1;
+      nanos += NANOS_PER_UNIT;
+    }
+
+    // add 0 to avoid components being set to -0
+    return new Money(units + 0, nanos + 0);
+  }
 }

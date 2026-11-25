@@ -160,4 +160,41 @@ describe("Money class tests", () => {
       new Money(2, 2),
     );
   });
+
+  describe("mulFixed", () => {
+    it("should multiply by a fixed point integer", () => {
+      expect(
+        Money.mulFixed(new Money(1, 500_000_000), 2 * NANOS_PER_UNIT),
+      ).toEqual(new Money(3, 0));
+      expect(Money.mulFixed(new Money(1, 0), 1_500_000_000)).toEqual(
+        new Money(1, 500_000_000),
+      );
+    });
+
+    it("should handle nano components and negative values", () => {
+      expect(Money.mulFixed(new Money(1, 2), 3 * NANOS_PER_UNIT)).toEqual(
+        new Money(3, 6),
+      );
+      expect(Money.mulFixed(new Money(-1, -2), 3 * NANOS_PER_UNIT)).toEqual(
+        new Money(-3, -6),
+      );
+      expect(Money.mulFixed(new Money(1, 2), -3 * NANOS_PER_UNIT)).toEqual(
+        new Money(-3, -6),
+      );
+    });
+
+    it("should round sub-nano results and avoid negative zero", () => {
+      const rounded = Money.mulFixed(new Money(0, 1), 500_000_000);
+      expect(rounded).toEqual(new Money(0, 1));
+      expect(rounded.valid()).toBe(true);
+
+      const zero = Money.mulFixed(new Money(-1, 0), 0);
+      expect(zero).toEqual(new Money(0, 0));
+      expect(zero.valid()).toBe(true);
+    });
+  });
+
+  test("mul", () => {
+    expect(Money.mul(new Money(1, 0), 0.5)).toEqual(new Money(0, 500_000_000));
+  })
 });

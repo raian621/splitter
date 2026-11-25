@@ -69,4 +69,23 @@ export class Money {
   static sub(a: Money, b: Money): Money {
     return Money.add(a, b.neg());
   }
+
+  static mulFixed(a: Money, nanos: number): Money {
+    const totalNanos = Math.round(
+      ((a.units * NANOS_PER_UNIT + a.nanos) * nanos) / NANOS_PER_UNIT,
+    );
+    const units = Math.trunc(totalNanos / NANOS_PER_UNIT);
+    const nanosResult = totalNanos % NANOS_PER_UNIT;
+
+    // add 0 to avoid components being set to -0
+    return new Money(units + 0, nanosResult + 0);
+  }
+
+  static mul(a: Money, factor: number): Money {
+    return Money.mulFixed(a, floatToNanos(factor));
+  }
+}
+
+function floatToNanos(float: number): number {
+  return Math.floor(float * NANOS_PER_UNIT);
 }

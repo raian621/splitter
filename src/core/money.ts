@@ -37,6 +37,10 @@ export class Money {
     return new Money(-this.units + 0, -this.nanos + 0);
   }
 
+  abs(): Money {
+    return new Money(Math.abs(this.units), Math.abs(this.nanos));
+  }
+
   static cmp(a: Money, b: Money): number {
     if (a.units === b.units) {
       return a.nanos - b.nanos;

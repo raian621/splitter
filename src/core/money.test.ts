@@ -1,18 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, test } from "vitest";
 import { Money, NANOS_PER_UNIT } from "./money";
 
 describe("Money class tests", () => {
   describe("valid", () => {
     it("should return true if both components are positive and nanos is in range", () => {
-      const money = new Money(1, 67_000_000); // 1.67
+      const money = new Money(1, 670_000_000); // 1.67
 
-      expect(money.valid()).true;
+      expect(money.valid()).toBe(true);
     });
 
     it("should return true if both components are negative and nanos is in range", () => {
-      const money = new Money(-1, -67_000_000); // 1.67
+      const money = new Money(-1, -670_000_000); // 1.67
 
-      expect(money.valid()).true;
+      expect(money.valid()).toBe(true);
     });
 
     it("should return false if nanos is out of range", () => {
@@ -101,5 +101,13 @@ describe("Money class tests", () => {
         largest,
       ]);
     });
+  });
+
+  test("abs", () => {
+    const negative = new Money(-1, -670_000_000);
+    const positive = new Money(1, 670_000_000);
+
+    expect(negative.abs()).toEqual(positive);
+    expect(positive.abs()).toEqual(positive);
   });
 });

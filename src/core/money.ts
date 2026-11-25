@@ -65,4 +65,8 @@ export class Money {
     // add 0 to avoid components being set to -0
     return new Money(units + 0, nanos + 0);
   }
+
+  static sub(a: Money, b: Money): Money {
+    return Money.add(a, b.neg());
+  }
 }

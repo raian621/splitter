@@ -154,4 +154,10 @@ describe("Money class tests", () => {
       );
     });
   });
+
+  test("sub", () => {
+    expect(Money.sub(new Money(3, 4), new Money(1, 2))).toEqual(
+      new Money(2, 2),
+    );
+  });
 });

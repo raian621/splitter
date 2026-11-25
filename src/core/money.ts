@@ -103,6 +103,23 @@ export class Money {
   static div(a: Money, divisor: number): Money {
     return Money.divFixed(a, floatToNanos(divisor));
   }
+
+  static parse(value: string): Money | null {
+    const moneyRegex = /^-?(\d+|\d+\.\d+)$/;
+    if (!moneyRegex.test(value)) {
+      return null;
+    }
+
+    const [unitsStr, nanosStr] = value.split(".");
+    const units =
+      unitsStr === undefined || unitsStr === "" ? 0 : parseInt(unitsStr);
+    const nanos =
+      nanosStr === undefined || nanosStr === ""
+        ? 0
+        : parseInt(nanosStr.padEnd(9, "0"));
+
+    return new Money(units, nanos);
+  }
 }
 
 function floatToNanos(float: number): number {

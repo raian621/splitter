@@ -240,4 +240,15 @@ describe("Money class tests", () => {
     expect(Money.div(new Money(1, 0), 2)).toEqual(new Money(0, 500_000_000));
     expect(Money.div(new Money(1, 500_000_000), 0.5)).toEqual(new Money(3, 0));
   });
+
+  describe("parse", () => {
+    it("should parse whole inputs", () => {
+      expect(Money.parse("4")).toEqual(new Money(4, 0));
+      expect(Money.parse("-4")).toEqual(new Money(-4, 0));
+    });
+
+    it("should parse inputs with decimal components", () => {
+      expect(Money.parse("1.67")).toEqual(new Money(1, 670_000_000));
+    });
+  });
 });

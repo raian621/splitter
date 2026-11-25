@@ -196,5 +196,48 @@ describe("Money class tests", () => {
 
   test("mul", () => {
     expect(Money.mul(new Money(1, 0), 0.5)).toEqual(new Money(0, 500_000_000));
-  })
+  });
+
+  describe("divFixed", () => {
+    it("should divide by a fixed point integer", () => {
+      expect(Money.divFixed(new Money(1, 0), 2 * NANOS_PER_UNIT)).toEqual(
+        new Money(0, 500_000_000),
+      );
+      expect(Money.divFixed(new Money(0, 500_000_000), 500_000_000)).toEqual(
+        new Money(1, 0),
+      );
+    });
+
+    it("should handle nano components and negative values", () => {
+      expect(Money.divFixed(new Money(3, 6), 3 * NANOS_PER_UNIT)).toEqual(
+        new Money(1, 2),
+      );
+      expect(Money.divFixed(new Money(-3, -6), 3 * NANOS_PER_UNIT)).toEqual(
+        new Money(-1, -2),
+      );
+      expect(Money.divFixed(new Money(3, 6), -3 * NANOS_PER_UNIT)).toEqual(
+        new Money(-1, -2),
+      );
+    });
+
+    it("should round sub-nano results and avoid negative zero", () => {
+      const rounded = Money.divFixed(new Money(0, 1), 2 * NANOS_PER_UNIT);
+      expect(rounded).toEqual(new Money(0, 1));
+      expect(rounded.valid()).toBe(true);
+
+      const zero = Money.divFixed(new Money(0, 0), -2 * NANOS_PER_UNIT);
+      expect(zero).toEqual(new Money(0, 0));
+      expect(zero.valid()).toBe(true);
+    });
+
+    it("should throw when dividing by zero", () => {
+      expect(() => Money.divFixed(new Money(1, 0), 0)).toThrow(RangeError);
+      expect(() => Money.div(new Money(1, 0), 0)).toThrow(RangeError);
+    });
+  });
+
+  test("div", () => {
+    expect(Money.div(new Money(1, 0), 2)).toEqual(new Money(0, 500_000_000));
+    expect(Money.div(new Money(1, 500_000_000), 0.5)).toEqual(new Money(3, 0));
+  });
 });

@@ -84,6 +84,25 @@ export class Money {
   static mul(a: Money, factor: number): Money {
     return Money.mulFixed(a, floatToNanos(factor));
   }
+
+  static divFixed(a: Money, nanos: number): Money {
+    if (nanos === 0) {
+      throw new RangeError("Cannot divide Money by zero");
+    }
+
+    const totalNanos = Math.round(
+      ((a.units * NANOS_PER_UNIT + a.nanos) * NANOS_PER_UNIT) / nanos,
+    );
+    const units = Math.trunc(totalNanos / NANOS_PER_UNIT);
+    const nanosResult = totalNanos % NANOS_PER_UNIT;
+
+    // add 0 to avoid components being set to -0
+    return new Money(units + 0, nanosResult + 0);
+  }
+
+  static div(a: Money, divisor: number): Money {
+    return Money.divFixed(a, floatToNanos(divisor));
+  }
 }
 
 function floatToNanos(float: number): number {

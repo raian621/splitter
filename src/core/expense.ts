@@ -1,3 +1,4 @@
+import { Money, NANOS_PER_UNIT } from "./money";
 import type { Balance, Expense, Fee, Item, Person } from "./types";
 
 export function splitExpense(expense: Expense): Balance[] {
@@ -10,13 +11,13 @@ export function splitExpense(expense: Expense): Balance[] {
 
 export function calculateExpenseContributions(
   expense: Expense,
-): { personId: string; amount: number }[] {
+): { personId: string; amount: Money }[] {
   const balances = splitExpense(expense);
   return balances
-    .filter((balance) => balance.amount < 0)
+    .filter((balance) => balance.amount.units < 0)
     .map((balance) => ({
       personId: balance.personId,
-      amount: Math.abs(balance.amount),
+      amount: balance.amount.abs(),
     }));
 }
 
@@ -30,7 +31,7 @@ function splitEqualExpense(expense: Expense): Balance[] {
   // Payer paid the full amount, so they are owed the total
   balances.push({
     personId: expense.payerId,
-    amount: expense.amount,
+    amount: convertCentsToMoney(expense.amount),
   });
 
   const share = Math.floor(expense.amount / expense.participantIds.length);
@@ -42,7 +43,7 @@ function splitEqualExpense(expense: Expense): Balance[] {
 
     balances.push({
       personId: participantId,
-      amount: -amount,
+      amount: convertCentsToMoney(amount).neg(),
     });
   }
 
@@ -65,14 +66,14 @@ function splitItemizedExpense(expense: Expense): Balance[] {
   // Payer paid the full amount, so they are owed the total
   balances.push({
     personId: expense.payerId,
-    amount: expense.amount,
+    amount: convertCentsToMoney(expense.amount),
   });
 
   for (const [personId, share] of itemShares.entries()) {
     const feeShare = feeShares.get(personId) ?? 0;
     balances.push({
       personId,
-      amount: -(share + feeShare),
+      amount: convertCentsToMoney(-(share + feeShare)),
     });
   }
 
@@ -179,11 +180,11 @@ function distributeAmount(
 }
 
 export function aggregateBalances(balances: Balance[]): Balance[] {
-  const map = new Map<string, number>();
+  const map = new Map<string, Money>();
 
   for (const balance of balances) {
-    const current = map.get(balance.personId) ?? 0;
-    map.set(balance.personId, current + balance.amount);
+    const current = map.get(balance.personId) ?? new Money(0, 0);
+    map.set(balance.personId, Money.add(current, balance.amount));
   }
 
   return Array.from(map.entries()).map(([personId, amount]) => ({
@@ -261,4 +262,11 @@ export function formatCents(cents: number): string {
 
 export function getPersonName(people: Person[], personId: string): string {
   return people.find((p) => p.id === personId)?.name ?? personId;
+}
+
+function convertCentsToMoney(cents: number): Money {
+  return new Money(
+    (cents < 0 ? Math.ceil : Math.floor)(cents / 100) + 0,
+    ((cents * 10_000_000) % NANOS_PER_UNIT) + 0,
+  );
 }

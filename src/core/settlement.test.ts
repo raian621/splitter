@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { settleDebts } from "./settlement";
 import type { Balance } from "./types";
+import { Money } from "./money";
 
 describe("settleDebts", () => {
   it("returns empty array when no balances", () => {
@@ -9,8 +10,8 @@ describe("settleDebts", () => {
 
   it("returns empty array when all balances are zero", () => {
     const balances: Balance[] = [
-      { personId: "alice", amount: 0 },
-      { personId: "bob", amount: 0 },
+      { personId: "alice", amount: Money.ZERO() },
+      { personId: "bob", amount: Money.ZERO() },
     ];
 
     expect(settleDebts(balances)).toEqual([]);
@@ -18,8 +19,8 @@ describe("settleDebts", () => {
 
   it("settles a simple two-person debt", () => {
     const balances: Balance[] = [
-      { personId: "alice", amount: 5000 },
-      { personId: "bob", amount: -5000 },
+      { personId: "alice", amount: Money.parse("50")! },
+      { personId: "bob", amount: Money.parse("-50")! },
     ];
 
     expect(settleDebts(balances)).toEqual([
@@ -29,10 +30,10 @@ describe("settleDebts", () => {
 
   it("settles debts among multiple people with minimal transactions", () => {
     const balances: Balance[] = [
-      { personId: "alice", amount: 3000 },
-      { personId: "bob", amount: 2000 },
-      { personId: "carol", amount: -4000 },
-      { personId: "dave", amount: -1000 },
+      { personId: "alice", amount: Money.parse("30")! },
+      { personId: "bob", amount: Money.parse("20")! },
+      { personId: "carol", amount: Money.parse("-40")! },
+      { personId: "dave", amount: Money.parse("-10")! },
     ];
 
     const transactions = settleDebts(balances);
@@ -53,10 +54,10 @@ describe("settleDebts", () => {
 
   it("handles partial settlements between a large creditor and multiple debtors", () => {
     const balances: Balance[] = [
-      { personId: "alice", amount: 10000 },
-      { personId: "bob", amount: -3000 },
-      { personId: "carol", amount: -2000 },
-      { personId: "dave", amount: -5000 },
+      { personId: "alice", amount: Money.parse("100.00")! },
+      { personId: "bob", amount: Money.parse("-30.00")! },
+      { personId: "carol", amount: Money.parse("-20.00")! },
+      { personId: "dave", amount: Money.parse("-50.00")! },
     ];
 
     const transactions = settleDebts(balances);
@@ -75,13 +76,13 @@ describe("settleDebts", () => {
 
   it("does not mutate original balances", () => {
     const balances: Balance[] = [
-      { personId: "alice", amount: 1000 },
-      { personId: "bob", amount: -1000 },
+      { personId: "alice", amount: Money.parse("10.00")! },
+      { personId: "bob", amount: Money.parse("-10.00")! },
     ];
 
     settleDebts(balances);
 
-    expect(balances[0].amount).toBe(1000);
-    expect(balances[1].amount).toBe(-1000);
+    expect(balances[0].amount).toEqual(Money.parse("10.00"));
+    expect(balances[1].amount).toEqual(Money.parse("-10.00"));
   });
 });

@@ -250,5 +250,9 @@ describe("Money class tests", () => {
     it("should parse inputs with decimal components", () => {
       expect(Money.parse("1.67")).toEqual(new Money(1, 670_000_000));
     });
+
+    it("should parse negative imputs", () => {
+      expect(Money.parse("-1.67")).toEqual(new Money(-1, -670_000_000));
+    });
   });
 });

@@ -150,7 +150,8 @@ describe("App", () => {
 
     expect(screen.getByText("Breakdown: Taxi")).toBeInTheDocument();
     expect(screen.getByText("Each person owes")).toBeInTheDocument();
-    expect(screen.getAllByText("$20.00").length).toBeGreaterThanOrEqual(3);
+    // 2 people owe $20 but all 3 contributed $20 to the Taxi ride
+    expect(screen.getAllByText("$20.00").length).toBe(5);
   });
 
   it("allows editing an existing expense", () => {

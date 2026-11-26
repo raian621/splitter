@@ -1,3 +1,5 @@
+import type { Money } from "./money";
+
 export type Person = {
   id: string;
   name: string;
@@ -32,7 +34,7 @@ export type Expense = {
 
 export type Balance = {
   personId: string;
-  amount: number; // positive = owed money, negative = owes money
+  amount: Money; // positive = owed money, negative = owes money
 };
 
 export type Transaction = {

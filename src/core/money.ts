@@ -51,7 +51,8 @@ export class Money {
     const cents = Math.abs(
       (this.nanos < 0 ? Math.ceil : Math.floor)(this.nanos / 10_000_000),
     );
-    return `${sign}\$${absUnits}.${cents}`;
+    const paddedCentsString = cents.toString().padEnd(2, "0")
+    return `${sign}\$${absUnits}.${paddedCentsString}`;
   }
 
   static ZERO(): Money {
@@ -129,13 +130,13 @@ export class Money {
 
     const [unitsStr, nanosStr] = value.split(".");
     const units =
-      unitsStr === undefined || unitsStr === "" ? 0 : parseInt(unitsStr);
+      unitsStr === undefined || unitsStr === "" ? 0 : parseInt(unitsStr) + 0;
     const nanos =
       nanosStr === undefined || nanosStr === ""
         ? 0
         : parseInt(nanosStr.padEnd(9, "0"));
 
-    return new Money(units, nanos);
+    return new Money(units, units < 0 ? -nanos + 0 : nanos);
   }
 }
 

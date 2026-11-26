@@ -41,6 +41,10 @@ export class Money {
     return new Money(Math.abs(this.units), Math.abs(this.nanos));
   }
 
+  toString(): string {
+    return `${this.units}.${this.nanos}`.replace(/0+$/, "");
+  }
+
   static cmp(a: Money, b: Money): number {
     if (a.units === b.units) {
       return a.nanos - b.nanos;

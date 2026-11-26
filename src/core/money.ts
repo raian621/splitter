@@ -45,6 +45,15 @@ export class Money {
     return `${this.units}.${this.nanos}`.replace(/0+$/, "");
   }
 
+  formatCents(): string {
+    const sign = this.units < 0 ? "-" : "";
+    const absUnits = Math.abs(this.units)
+    const cents = Math.abs(
+      (this.nanos < 0 ? Math.ceil : Math.floor)(this.nanos / 10_000_000),
+    );
+    return `${sign}\$${absUnits}.${cents}`;
+  }
+
   static ZERO(): Money {
     return new Money(0, 0);
   }

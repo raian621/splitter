@@ -41,17 +41,24 @@ export class Money {
     return new Money(Math.abs(this.units), Math.abs(this.nanos));
   }
 
+  cents(): number {
+    return (
+      this.units * 100 +
+      (this.nanos < 0 ? Math.ceil : Math.floor)(this.nanos / 10_000_000)
+    );
+  }
+
   toString(): string {
     return `${this.units}.${this.nanos}`.replace(/0+$/, "");
   }
 
   formatCents(): string {
     const sign = this.units < 0 ? "-" : "";
-    const absUnits = Math.abs(this.units)
+    const absUnits = Math.abs(this.units);
     const cents = Math.abs(
       (this.nanos < 0 ? Math.ceil : Math.floor)(this.nanos / 10_000_000),
     );
-    const paddedCentsString = cents.toString().padEnd(2, "0")
+    const paddedCentsString = cents.toString().padEnd(2, "0");
     return `${sign}\$${absUnits}.${paddedCentsString}`;
   }
 

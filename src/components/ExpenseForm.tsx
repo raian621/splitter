@@ -5,6 +5,7 @@ import {
   validateExpense,
 } from "../core/expense";
 import type { Expense, Fee, Item, Person } from "../core/types";
+import { Money } from "../core/money";
 
 export type ExpenseFormProps = {
   people: Person[];
@@ -18,7 +19,7 @@ function createEmptyItem(getId: () => number): Item {
   return {
     id: getId().toString(),
     description: "",
-    amount: 0,
+    amount: Money.ZERO(),
     consumerIds: [],
   };
 }
@@ -356,10 +357,10 @@ export function ExpenseForm({
                       type="number"
                       min="0.01"
                       step="0.01"
-                      value={item.amount / 100 || ""}
+                      value={item.amount.formatCents().replace("$", "")}
                       onChange={(e) =>
                         updateItem(item.id, {
-                          amount: Math.round(parseFloat(e.target.value) * 100),
+                          amount: Money.parse(e.target.value) ?? Money.ZERO(),
                         })
                       }
                       placeholder="0.00"

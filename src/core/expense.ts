@@ -1,4 +1,4 @@
-import { Money, NANOS_PER_UNIT } from "./money";
+import { Money } from "./money";
 import type { Balance, Expense, Fee, Item, Person } from "./types";
 
 export function splitExpense(expense: Expense): Balance[] {
@@ -73,50 +73,56 @@ function splitItemizedExpense(expense: Expense): Balance[] {
     const feeShare = feeShares.get(personId) ?? 0;
     balances.push({
       personId,
-      amount: Money.fromCents(-(share + feeShare)),
+      amount: Money.add(share, Money.fromCents(feeShare)).neg(),
     });
   }
 
   return balances;
 }
 
-export function calculateItemShares(items: Item[]): Map<string, number> {
-  const shares = new Map<string, number>();
+export function calculateItemShares(items: Item[]): Map<string, Money> {
+  const shares = new Map<string, Money>();
 
   for (const item of items) {
     if (item.consumerIds.length === 0) {
       continue;
     }
 
-    const share = Math.floor(item.amount / item.consumerIds.length);
-    const remainder = item.amount - share * item.consumerIds.length;
+    const share = Money.div(item.amount, item.consumerIds.length);
+    // hopefully, there will be less than 1e9 contributors to the bill:
+    const remainderNanos = Money.sub(
+      item.amount,
+      Money.mul(share, item.consumerIds.length),
+    ).nanos;
 
     for (let i = 0; i < item.consumerIds.length; i++) {
       const consumerId = item.consumerIds[i];
-      const amount = share + (i < remainder ? 1 : 0);
-      const current = shares.get(consumerId) ?? 0;
-      shares.set(consumerId, current + amount);
+      const amount = Money.add(share, new Money(0, i < remainderNanos ? 1 : 0));
+      const current = shares.get(consumerId) ?? Money.ZERO();
+      shares.set(consumerId, Money.add(current, amount));
     }
   }
 
   return shares;
 }
 
-export function calculateFeeTotal(itemTotal: number, fee: Fee): number {
-  return fee.type === "rate" ? Math.round(fee.value * itemTotal) : fee.value;
+export function calculateFeeTotal(itemTotal: Money, fee: Fee): number {
+  return fee.type === "rate"
+    ? Math.round(fee.value * itemTotal.cents())
+    : fee.value;
 }
 
 export function calculateFeeShares(
-  itemShares: Map<string, number>,
+  itemShares: Map<string, Money>,
   fees: Fee[],
 ): Map<string, number> {
   const feeShares = new Map<string, number>();
   const totalItemAmount = Array.from(itemShares.values()).reduce(
-    (sum, amount) => sum + amount,
-    0,
+    Money.add,
+    Money.ZERO(),
   );
 
-  if (totalItemAmount === 0) {
+  if (Money.cmp(totalItemAmount, Money.ZERO()) === 0) {
     return feeShares;
   }
 
@@ -134,21 +140,24 @@ export function calculateFeeShares(
 }
 
 export function calculateItemizedTotal(items: Item[], fees: Fee[]): number {
-  const itemTotal = items.reduce((sum, item) => sum + item.amount, 0);
+  const itemTotal = items.reduce(
+    (sum, item) => Money.add(sum, item.amount),
+    Money.ZERO(),
+  );
   const feeTotal = fees.reduce(
     (sum, fee) => sum + calculateFeeTotal(itemTotal, fee),
     0,
   );
-  return itemTotal + feeTotal;
+  return itemTotal.cents() + feeTotal;
 }
 
 function distributeAmount(
   amount: number,
-  weights: Map<string, number>,
+  weights: Map<string, Money>,
 ): Map<string, number> {
   const result = new Map<string, number>();
   const totalWeight = Array.from(weights.values()).reduce(
-    (sum, weight) => sum + weight,
+    (sum, weight) => sum + weight.cents(),
     0,
   );
 
@@ -160,7 +169,7 @@ function distributeAmount(
   const fractions: { personId: string; fraction: number }[] = [];
 
   for (const [personId, weight] of weights.entries()) {
-    const exact = (amount * weight) / totalWeight;
+    const exact = (amount * weight.cents()) / totalWeight;
     const share = Math.floor(exact);
     result.set(personId, share);
     distributed += share;
@@ -227,7 +236,7 @@ function validateItemizedExpense(expense: Expense): string | null {
   }
 
   for (const item of items) {
-    if (item.amount <= 0) {
+    if (Money.cmp(item.amount, Money.ZERO()) <= 0) {
       return `Item "${item.description || "Untitled"}" must have a positive amount`;
     }
 

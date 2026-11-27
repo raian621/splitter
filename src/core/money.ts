@@ -155,5 +155,5 @@ export class Money {
 }
 
 function floatToNanos(float: number): number {
-  return Math.floor(float * NANOS_PER_UNIT);
+  return Math.round(float * NANOS_PER_UNIT);
 }

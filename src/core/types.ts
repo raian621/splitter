@@ -8,7 +8,7 @@ export type Person = {
 export type Item = {
   id: string;
   description: string;
-  amount: number; // amount in cents
+  amount: Money;
   consumerIds: string[]; // people who got this item
 };
 

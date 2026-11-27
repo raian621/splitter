@@ -58,7 +58,7 @@ export function ExpenseList({
                       {expense.items.map((item) => (
                         <tr key={item.id}>
                           <td>{item.description || "Untitled item"}</td>
-                          <td>{formatCents(item.amount)}</td>
+                          <td>{item.amount.formatCents()}</td>
                           <td className="breakdown-consumers">
                             {item.consumerIds
                               .map((id) => getPersonName(people, id))

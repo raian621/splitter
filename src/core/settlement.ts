@@ -32,7 +32,7 @@ export function settleDebts(balances: Balance[]): Transaction[] {
     transactions.push({
       from: debtor.personId,
       to: creditor.personId,
-      amount: moneyToCents(amount),
+      amount: amount.cents(),
     });
 
     creditor.amount = Money.sub(creditor.amount, amount);
@@ -40,11 +40,4 @@ export function settleDebts(balances: Balance[]): Transaction[] {
   }
 
   return transactions;
-}
-
-function moneyToCents(money: Money): number {
-  return (
-    money.units * 100 +
-    (money.nanos < 0 ? Math.ceil : Math.floor)(money.nanos / 10_000_000)
-  );
 }

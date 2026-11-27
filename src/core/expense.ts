@@ -31,7 +31,7 @@ function splitEqualExpense(expense: Expense): Balance[] {
   // Payer paid the full amount, so they are owed the total
   balances.push({
     personId: expense.payerId,
-    amount: convertCentsToMoney(expense.amount),
+    amount: Money.fromCents(expense.amount),
   });
 
   const share = Math.floor(expense.amount / expense.participantIds.length);
@@ -43,7 +43,7 @@ function splitEqualExpense(expense: Expense): Balance[] {
 
     balances.push({
       personId: participantId,
-      amount: convertCentsToMoney(amount).neg(),
+      amount: Money.fromCents(amount).neg(),
     });
   }
 
@@ -66,14 +66,14 @@ function splitItemizedExpense(expense: Expense): Balance[] {
   // Payer paid the full amount, so they are owed the total
   balances.push({
     personId: expense.payerId,
-    amount: convertCentsToMoney(expense.amount),
+    amount: Money.fromCents(expense.amount),
   });
 
   for (const [personId, share] of itemShares.entries()) {
     const feeShare = feeShares.get(personId) ?? 0;
     balances.push({
       personId,
-      amount: convertCentsToMoney(-(share + feeShare)),
+      amount: Money.fromCents(-(share + feeShare)),
     });
   }
 
@@ -262,11 +262,4 @@ export function formatCents(cents: number): string {
 
 export function getPersonName(people: Person[], personId: string): string {
   return people.find((p) => p.id === personId)?.name ?? personId;
-}
-
-function convertCentsToMoney(cents: number): Money {
-  return new Money(
-    (cents < 0 ? Math.ceil : Math.floor)(cents / 100) + 0,
-    ((cents * 10_000_000) % NANOS_PER_UNIT) + 0,
-  );
 }

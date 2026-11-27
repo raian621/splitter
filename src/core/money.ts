@@ -145,6 +145,13 @@ export class Money {
 
     return new Money(units, units < 0 ? -nanos + 0 : nanos);
   }
+
+  static fromCents(cents: number): Money {
+    return new Money(
+      (cents < 0 ? Math.ceil : Math.floor)(cents / 100) + 0,
+      ((cents * 10_000_000) % NANOS_PER_UNIT) + 0,
+    );
+  }
 }
 
 function floatToNanos(float: number): number {

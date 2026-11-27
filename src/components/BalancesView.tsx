@@ -8,7 +8,9 @@ export type BalancesViewProps = {
 };
 
 export function BalancesView({ balances, people }: BalancesViewProps) {
-  const sortedBalances = [...balances].sort((a, b) => Money.cmp(b.amount, a.amount));
+  const sortedBalances = [...balances].sort((a, b) =>
+    Money.cmp(b.amount, a.amount),
+  );
 
   return (
     <div>

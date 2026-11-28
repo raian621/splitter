@@ -25,7 +25,7 @@ function createDefaultFee(getId: () => number): Fee {
     id: getId().toString(),
     description: "Tax",
     type: "rate",
-    rate: 0.0875,
+    rate: 0,
   };
 }
 
@@ -35,16 +35,32 @@ function initializeState(
   getId: () => number,
 ) {
   if (!expenseToEdit) {
+    const initialItem = createEmptyItem(getId);
+    const initialFee = createDefaultFee(getId);
     return {
       description: "",
       amount: "",
       payerId: "",
       splitMethod: "equal" as const,
       selectedParticipantIds: people.map((p) => p.id) as string[],
-      items: [createEmptyItem(getId)],
-      fees: [createDefaultFee(getId)],
+      itemAmounts: new Map([
+        [initialItem.id, initialItem.amount.formatCents().replace("$", "")],
+      ]),
+      feeValues: new Map([
+        [initialFee.id, { type: "rate", value: initialFee.rate!.toString() }],
+      ]),
+      items: [initialItem],
+      fees: [initialFee],
     };
   }
+
+  const expenseItems = expenseToEdit.items ?? [];
+  const items =
+    expenseItems.length > 0 ? expenseItems : [createEmptyItem(getId)];
+  const fees =
+    expenseToEdit.fees && expenseToEdit.fees.length > 0
+      ? expenseToEdit.fees
+      : [createDefaultFee(getId)];
 
   return {
     description: expenseToEdit.description,
@@ -54,33 +70,27 @@ function initializeState(
     selectedParticipantIds: expenseToEdit.participantIds.filter(
       (id) => id !== expenseToEdit.payerId,
     ),
-    items:
-      expenseToEdit.items && expenseToEdit.items.length > 0
-        ? expenseToEdit.items
-        : [createEmptyItem(getId)],
-    fees:
-      expenseToEdit.fees && expenseToEdit.fees.length > 0
-        ? expenseToEdit.fees
-        : [createDefaultFee(getId)],
+    itemAmounts: new Map(
+      items.map((item) => [
+        item.id,
+        item.amount.formatCents().replace("$", ""),
+      ]),
+    ),
+    feeValues: new Map(
+      fees.map((fee) => [
+        fee.id,
+        {
+          type: fee.type as string,
+          value:
+            fee.type === "rate"
+              ? (fee.rate! * 100)!.toString()
+              : fee.amount!.formatCents().replace("$", ""),
+        },
+      ]),
+    ),
+    items,
+    fees,
   };
-}
-
-function formatFloat(numFloat: number, decimalPlaces: number): string {
-  const numStr = numFloat.toFixed(decimalPlaces);
-
-  // decimal without trailing zeros:
-  if (!numStr.endsWith("0")) {
-    return numStr;
-  }
-
-  // whole number:
-  const wholeNumberRegex = /\d\.0+$/;
-  if (wholeNumberRegex.test(numStr)) {
-    return numStr.replace(/\.0+$/, "");
-  }
-
-  // decimal with trailing zeros:
-  return numStr.replace(/0+$/, "");
 }
 
 export function ExpenseForm({
@@ -105,7 +115,13 @@ export function ExpenseForm({
     string[]
   >(initialState.selectedParticipantIds);
   const [items, setItems] = useState<Item[]>(initialState.items);
+  const [itemAmounts, setItemAmounts] = useState<Map<string, string>>(
+    initialState.itemAmounts,
+  );
   const [fees, setFees] = useState<Fee[]>(initialState.fees);
+  const [feeValues, setFeeValues] = useState<
+    Map<string, { type: string; value: string }>
+  >(initialState.feeValues);
   const [error, setError] = useState<string | null>(null);
 
   const isEditing = expenseToEdit !== undefined;
@@ -134,6 +150,25 @@ export function ExpenseForm({
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, ...updates } : item)),
     );
+  };
+
+  const updateItemAmount = (id: string, amount: string) => {
+    const itemAmountsCopy = new Map(itemAmounts);
+    itemAmountsCopy.set(id, amount);
+    updateItem(id, { amount: Money.parse(amount) || Money.ZERO() });
+    setItemAmounts(itemAmountsCopy);
+  };
+
+  const updateFeeValue = (id: string, type: string, value: string) => {
+    const feeValuesCopy = new Map(feeValues);
+    feeValuesCopy.set(id, { type, value });
+    updateFee(id, {
+      type: type as "rate" | "amount",
+      rate: type === "rate" ? parseFloat(value) / 100 : undefined,
+      amount:
+        type === "amount" ? (Money.parse(value) ?? Money.ZERO()) : undefined,
+    });
+    setFeeValues(feeValuesCopy);
   };
 
   const toggleItemConsumer = (itemId: string, personId: string) => {
@@ -190,8 +225,8 @@ export function ExpenseForm({
 
     const amountInCents =
       splitMethod === "itemized"
-        ? calculatedItemizedTotal.cents()
-        : Math.round(parseFloat(amount) * 100);
+        ? calculatedItemizedTotal
+        : (Money.parse(amount) ?? Money.ZERO());
 
     const participantIds =
       splitMethod === "itemized"
@@ -203,7 +238,7 @@ export function ExpenseForm({
     const expense: Expense = {
       id: expenseToEdit?.id ?? getId().toString(),
       description: description.trim() || "Expense",
-      amount: Money.fromCents(amountInCents),
+      amount: amountInCents,
       payerId,
       participantIds,
       splitMethod,
@@ -353,11 +388,9 @@ export function ExpenseForm({
                       type="number"
                       min="0.01"
                       step="0.01"
-                      value={item.amount.formatCents().replace("$", "")}
+                      value={itemAmounts.get(item.id) ?? "0.00"}
                       onChange={(e) =>
-                        updateItem(item.id, {
-                          amount: Money.parse(e.target.value) ?? Money.ZERO(),
-                        })
+                        updateItemAmount(item.id, e.target.value)
                       }
                       placeholder="0.00"
                       className="input item-amount"
@@ -417,17 +450,7 @@ export function ExpenseForm({
                     <select
                       value={fee.type}
                       onChange={(e) =>
-                        updateFee(fee.id, {
-                          type: e.target.value as "rate" | "amount",
-                          rate:
-                            e.target.value === "rate"
-                              ? fee.rate! / 100
-                              : undefined,
-                          amount:
-                            e.target.value === "amount"
-                              ? fee.amount!
-                              : undefined,
-                        })
+                        updateFeeValue(fee.id, fee.type, e.target.value)
                       }
                       className="input fee-type"
                       aria-label={`Fee ${index + 1} type`}
@@ -439,23 +462,9 @@ export function ExpenseForm({
                       type="number"
                       min="0"
                       step="0.01"
-                      value={formatFloat(
-                        fee.type === "rate"
-                          ? fee.rate! * 100
-                          : fee.amount!.cents() / 100,
-                        /*decimalPlaces=*/ 2,
-                      )}
+                      value={feeValues.get(fee.id)?.value}
                       onChange={(e) =>
-                        updateFee(fee.id, {
-                          rate:
-                            fee.type === "rate"
-                              ? parseFloat(e.target.value) / 100
-                              : undefined,
-                          amount:
-                            fee.type === "amount"
-                              ? Money.parse(e.target.value) || undefined
-                              : undefined,
-                        })
+                        updateFeeValue(fee.id, fee.type, e.target.value)
                       }
                       placeholder="0.00"
                       className="input fee-rate"

@@ -46,6 +46,7 @@ function App() {
 
       try {
         const ledger = await deserializeLedger(ledgerParam);
+        console.log(ledger);
         if (cancelled) return;
         setPeople(Array.isArray(ledger.people) ? ledger.people : defaultPeople);
         setExpenses(Array.isArray(ledger.expenses) ? ledger.expenses : []);

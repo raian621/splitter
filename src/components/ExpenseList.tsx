@@ -1,4 +1,4 @@
-import { formatCents, getPersonName } from "../core/expense";
+import { getPersonName } from "../core/expense";
 import type { Expense, Person } from "../core/types";
 import "../styles/ExpenseList.css";
 
@@ -32,7 +32,7 @@ export function ExpenseList({
           <div className="expense-info">
             <span className="expense-description">{expense.description}</span>
             <span className="expense-amount">
-              {formatCents(expense.amount)}
+              {expense.amount.formatCents()}
             </span>
           </div>
           <div className="expense-meta">
@@ -80,8 +80,8 @@ export function ExpenseList({
                         <span>{fee.description || "Untitled fee"}</span>
                         <span>
                           {fee.type === "rate"
-                            ? `${(fee.value * 100).toFixed(2)}%`
-                            : formatCents(fee.value)}
+                            ? `${(fee.rate! * 100).toFixed(2)}%`
+                            : fee.amount!.formatCents()}
                         </span>
                       </li>
                     ))}

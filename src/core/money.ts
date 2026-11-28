@@ -58,7 +58,7 @@ export class Money {
     const cents = Math.abs(
       (this.nanos < 0 ? Math.ceil : Math.floor)(this.nanos / 10_000_000),
     );
-    const paddedCentsString = cents.toString().padEnd(2, "0");
+    const paddedCentsString = cents.toString().padStart(2, "0");
     return `${sign}\$${absUnits}.${paddedCentsString}`;
   }
 

@@ -1,8 +1,4 @@
-import {
-  calculateExpenseContributions,
-  formatCents,
-  getPersonName,
-} from "../core/expense";
+import { calculateExpenseContributions, getPersonName } from "../core/expense";
 import { Money } from "../core/money";
 import type { Expense, Person } from "../core/types";
 import "../styles/ExpenseBreakdownModal.css";
@@ -41,7 +37,7 @@ export function ExpenseBreakdownModal({
         <div className="breakdown-modal-total">
           <span className="breakdown-modal-label">Total</span>
           <span className="breakdown-modal-value">
-            {formatCents(expense.amount)}
+            {expense.amount.formatCents()}
           </span>
         </div>
 

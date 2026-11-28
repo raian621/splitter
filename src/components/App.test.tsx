@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { serializeLedger } from "../core/serialize";
 import App from "./App";
+import { Money } from "../core/money";
 
 beforeEach(() => {
   vi.stubGlobal("navigator", { clipboard: { writeText: vi.fn() } });
@@ -111,7 +112,7 @@ describe("App", () => {
         {
           id: "exp-1",
           description: "Shared ride",
-          amount: 3000,
+          amount: Money.parse("30")!,
           payerId: "1",
           participantIds: ["1", "2"],
           splitMethod: "equal" as const,
@@ -150,7 +151,8 @@ describe("App", () => {
 
     expect(screen.getByText("Breakdown: Taxi")).toBeInTheDocument();
     expect(screen.getByText("Each person owes")).toBeInTheDocument();
-    expect(screen.getAllByText("$20.00").length).toBeGreaterThanOrEqual(3);
+    // 2 people owe $20 but all 3 contributed $20 to the Taxi ride
+    expect(screen.getAllByText("$20.00").length).toBe(5);
   });
 
   it("allows editing an existing expense", () => {

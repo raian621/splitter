@@ -11,13 +11,14 @@ import {
   validateExpense,
 } from "./expense";
 import type { Expense, Fee, Item, Person } from "./types";
+import { Money } from "./money";
 
 describe("splitExpense", () => {
   it("splits an expense equally among participants", () => {
     const expense: Expense = {
       id: "1",
       description: "Dinner",
-      amount: 10000, // $100.00
+      amount: Money.parse("100.00")!,
       payerId: "alice",
       participantIds: ["alice", "bob", "carol"],
       splitMethod: "equal",
@@ -26,10 +27,10 @@ describe("splitExpense", () => {
     const balances = splitExpense(expense);
 
     expect(balances).toEqual([
-      { personId: "alice", amount: 10000 },
-      { personId: "alice", amount: -3334 },
-      { personId: "bob", amount: -3333 },
-      { personId: "carol", amount: -3333 },
+      { personId: "alice", amount: Money.parse("100") },
+      { personId: "alice", amount: new Money(-33, -333_333_334) },
+      { personId: "bob", amount: new Money(-33, -333_333_333) },
+      { personId: "carol", amount: new Money(-33, -333_333_333) },
     ]);
   });
 
@@ -37,7 +38,7 @@ describe("splitExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Solo ride",
-      amount: 2500,
+      amount: Money.parse("25.00")!,
       payerId: "alice",
       participantIds: ["alice"],
       splitMethod: "equal",
@@ -46,8 +47,8 @@ describe("splitExpense", () => {
     const balances = splitExpense(expense);
 
     expect(balances).toEqual([
-      { personId: "alice", amount: 2500 },
-      { personId: "alice", amount: -2500 },
+      { personId: "alice", amount: Money.parse("25") },
+      { personId: "alice", amount: Money.parse("-25") },
     ]);
   });
 
@@ -55,7 +56,7 @@ describe("splitExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Invalid",
-      amount: 1000,
+      amount: Money.parse("10.00")!,
       payerId: "alice",
       participantIds: [],
       splitMethod: "equal",
@@ -68,15 +69,15 @@ describe("splitExpense", () => {
 describe("aggregateBalances", () => {
   it("sums balances by person", () => {
     const balances = [
-      { personId: "alice", amount: 10000 },
-      { personId: "bob", amount: -5000 },
-      { personId: "alice", amount: -3000 },
-      { personId: "bob", amount: -2000 },
+      { personId: "alice", amount: Money.parse("100")! },
+      { personId: "bob", amount: Money.parse("-50")! },
+      { personId: "alice", amount: Money.parse("-30")! },
+      { personId: "bob", amount: Money.parse("-20")! },
     ];
 
     expect(aggregateBalances(balances)).toEqual([
-      { personId: "alice", amount: 7000 },
-      { personId: "bob", amount: -7000 },
+      { personId: "alice", amount: Money.parse("70") },
+      { personId: "bob", amount: Money.parse("-70") },
     ]);
   });
 });
@@ -87,7 +88,7 @@ describe("computeBalancesFromExpenses", () => {
       {
         id: "1",
         description: "Ride",
-        amount: 3000,
+        amount: Money.parse("30.00")!,
         payerId: "alice",
         participantIds: ["alice", "bob"],
         splitMethod: "equal",
@@ -95,7 +96,7 @@ describe("computeBalancesFromExpenses", () => {
       {
         id: "2",
         description: "Food",
-        amount: 4000,
+        amount: Money.parse("40.00")!,
         payerId: "bob",
         participantIds: ["alice", "bob", "carol"],
         splitMethod: "equal",
@@ -107,12 +108,24 @@ describe("computeBalancesFromExpenses", () => {
     // Alice paid $30, owes $15 (ride) + $13.34 (food, first remainder) -> net +$1.66 -> 166
     // Bob paid $40, owes $15 (ride) + $13.33 (food) -> net +$11.67 -> 1167
     // Carol owes $13.33 -> -1333
-    expect(balances).toContainEqual({ personId: "alice", amount: 166 });
-    expect(balances).toContainEqual({ personId: "bob", amount: 1167 });
-    expect(balances).toContainEqual({ personId: "carol", amount: -1333 });
+    expect(balances).toContainEqual({
+      personId: "alice",
+      amount: new Money(1, 666_666_666),
+    });
+    expect(balances).toContainEqual({
+      personId: "bob",
+      amount: new Money(11, 666_666_667),
+    });
+    expect(balances).toContainEqual({
+      personId: "carol",
+      amount: new Money(-13, -333_333_333),
+    });
 
-    const total = balances.reduce((sum, b) => sum + b.amount, 0);
-    expect(total).toBe(0);
+    const total = balances.reduce(
+      (sum, b) => Money.add(sum, b.amount),
+      new Money(0, 0),
+    );
+    expect(total).toEqual(Money.parse("0"));
   });
 });
 
@@ -121,7 +134,7 @@ describe("splitExpense with itemized method", () => {
     const expense: Expense = {
       id: "1",
       description: "Dinner",
-      amount: 12875, // $100 items + $8.75 tax + $20.00 tip = $128.75
+      amount: Money.parse("128.75")!,
       payerId: "alice",
       participantIds: [],
       splitMethod: "itemized",
@@ -129,25 +142,25 @@ describe("splitExpense with itemized method", () => {
         {
           id: "burger",
           description: "Burger",
-          amount: 1500, // $15
+          amount: Money.parse("15.00")!,
           consumerIds: ["alice"],
         },
         {
           id: "pizza",
           description: "Pizza",
-          amount: 3000, // $30
+          amount: Money.parse("30.00")!,
           consumerIds: ["bob", "carol"],
         },
         {
           id: "salad",
           description: "Salad",
-          amount: 5500, // $55
+          amount: Money.parse("55.00")!,
           consumerIds: ["alice", "bob", "carol"],
         },
       ],
       fees: [
-        { id: "tax", description: "Tax", type: "rate", value: 0.0875 },
-        { id: "tip", description: "Tip", type: "rate", value: 0.2 },
+        { id: "tax", description: "Tax", type: "rate", rate: 0.0875 },
+        { id: "tip", description: "Tip", type: "rate", rate: 0.2 },
       ],
     };
 
@@ -158,20 +171,35 @@ describe("splitExpense with itemized method", () => {
     // Bob: $15 pizza + $18.33 salad = $33.33
     // Carol: $15 pizza + $18.33 salad = $33.33
     // Fee totals: tax $8.75 + tip $20.00 = $28.75, distributed proportionally
-    expect(balances).toContainEqual({ personId: "alice", amount: 12875 });
-    expect(balances).toContainEqual({ personId: "alice", amount: -4293 });
-    expect(balances).toContainEqual({ personId: "bob", amount: -4292 });
-    expect(balances).toContainEqual({ personId: "carol", amount: -4290 });
+    expect(balances).toContainEqual({
+      personId: "alice",
+      amount: Money.parse("128.75"),
+    });
+    expect(balances).toContainEqual({
+      personId: "alice",
+      amount: new Money(-42, -916_666_666),
+    });
+    expect(balances).toContainEqual({
+      personId: "bob",
+      amount: new Money(-42, -916_666_667),
+    });
+    expect(balances).toContainEqual({
+      personId: "carol",
+      amount: new Money(-42, -916_666_667),
+    });
 
-    const total = balances.reduce((sum, b) => sum + b.amount, 0);
-    expect(total).toBe(0);
+    const total = balances.reduce(
+      (sum, b) => Money.add(sum, b.amount),
+      new Money(0, 0),
+    );
+    expect(total).toEqual(new Money(0, 0));
   });
 
   it("handles a single consumer item with no fees", () => {
     const expense: Expense = {
       id: "1",
       description: "Solo item",
-      amount: 1000,
+      amount: Money.parse("10.00")!,
       payerId: "alice",
       participantIds: [],
       splitMethod: "itemized",
@@ -179,7 +207,7 @@ describe("splitExpense with itemized method", () => {
         {
           id: "item1",
           description: "Item",
-          amount: 1000,
+          amount: Money.parse("10.00")!,
           consumerIds: ["bob"],
         },
       ],
@@ -189,8 +217,8 @@ describe("splitExpense with itemized method", () => {
     const balances = splitExpense(expense);
 
     expect(balances).toEqual([
-      { personId: "alice", amount: 1000 },
-      { personId: "bob", amount: -1000 },
+      { personId: "alice", amount: Money.parse("10.00") },
+      { personId: "bob", amount: Money.parse("-10.00") },
     ]);
   });
 
@@ -198,7 +226,7 @@ describe("splitExpense with itemized method", () => {
     const expense: Expense = {
       id: "1",
       description: "Empty",
-      amount: 0,
+      amount: Money.ZERO(),
       payerId: "alice",
       participantIds: [],
       splitMethod: "itemized",
@@ -213,14 +241,19 @@ describe("splitExpense with itemized method", () => {
 describe("calculateItemizedTotal", () => {
   it("calculates total with fees", () => {
     const items: Item[] = [
-      { id: "a", description: "A", amount: 10000, consumerIds: ["x"] },
+      {
+        id: "a",
+        description: "A",
+        amount: Money.parse("100.00")!,
+        consumerIds: ["x"],
+      },
     ];
     const fees: Fee[] = [
-      { id: "tax", description: "Tax", type: "rate", value: 0.0875 },
-      { id: "tip", description: "Tip", type: "rate", value: 0.18 },
+      { id: "tax", description: "Tax", type: "rate", rate: 0.0875 },
+      { id: "tip", description: "Tip", type: "rate", rate: 0.18 },
     ];
 
-    expect(calculateItemizedTotal(items, fees)).toBe(12675);
+    expect(calculateItemizedTotal(items, fees)).toEqual(Money.parse("126.75"));
   });
 });
 
@@ -229,7 +262,7 @@ describe("calculateExpenseContributions", () => {
     const expense: Expense = {
       id: "1",
       description: "Taxi",
-      amount: 3000,
+      amount: Money.parse("30")!,
       payerId: "alice",
       participantIds: ["alice", "bob", "carol"],
       splitMethod: "equal",
@@ -240,9 +273,9 @@ describe("calculateExpenseContributions", () => {
     expect(contributions).toHaveLength(3);
     expect(contributions).toEqual(
       expect.arrayContaining([
-        { personId: "alice", amount: 1000 },
-        { personId: "bob", amount: 1000 },
-        { personId: "carol", amount: 1000 },
+        { personId: "alice", amount: Money.parse("10") },
+        { personId: "bob", amount: Money.parse("10") },
+        { personId: "carol", amount: Money.parse("10") },
       ]),
     );
   });
@@ -251,7 +284,7 @@ describe("calculateExpenseContributions", () => {
     const expense: Expense = {
       id: "1",
       description: "Dinner",
-      amount: 12875,
+      amount: Money.parse("128.75")!,
       payerId: "alice",
       participantIds: [],
       splitMethod: "itemized",
@@ -259,25 +292,25 @@ describe("calculateExpenseContributions", () => {
         {
           id: "burger",
           description: "Burger",
-          amount: 1500,
+          amount: Money.parse("15.00")!,
           consumerIds: ["alice"],
         },
         {
           id: "pizza",
           description: "Pizza",
-          amount: 3000,
+          amount: Money.parse("30.00")!,
           consumerIds: ["bob", "carol"],
         },
         {
           id: "salad",
           description: "Salad",
-          amount: 5500,
+          amount: Money.parse("55.00")!,
           consumerIds: ["alice", "bob", "carol"],
         },
       ],
       fees: [
-        { id: "tax", description: "Tax", type: "rate", value: 0.0875 },
-        { id: "tip", description: "Tip", type: "rate", value: 0.2 },
+        { id: "tax", description: "Tax", type: "rate", rate: 0.0875 },
+        { id: "tip", description: "Tip", type: "rate", rate: 0.2 },
       ],
     };
 
@@ -286,9 +319,9 @@ describe("calculateExpenseContributions", () => {
     expect(contributions).toHaveLength(3);
     expect(contributions).toEqual(
       expect.arrayContaining([
-        { personId: "alice", amount: 4293 },
-        { personId: "bob", amount: 4292 },
-        { personId: "carol", amount: 4290 },
+        { personId: "alice", amount: new Money(42, 916_666_666) },
+        { personId: "bob", amount: new Money(42, 916_666_667) },
+        { personId: "carol", amount: new Money(42, 916_666_667) },
       ]),
     );
   });
@@ -300,9 +333,11 @@ describe("calculateFeeTotal", () => {
       id: "tax",
       description: "Tax",
       type: "rate",
-      value: 0.0875,
+      rate: 0.0875,
     };
-    expect(calculateFeeTotal(10000, rateFee)).toBe(875);
+    expect(calculateFeeTotal(Money.parse("100.00")!, rateFee)).toEqual(
+      Money.parse("8.75"),
+    );
   });
 
   it("returns fixed amount for amount-based fee", () => {
@@ -310,9 +345,11 @@ describe("calculateFeeTotal", () => {
       id: "service",
       description: "Service",
       type: "amount",
-      value: 500,
+      amount: Money.parse("5")!,
     };
-    expect(calculateFeeTotal(10000, amountFee)).toBe(500);
+    expect(calculateFeeTotal(Money.parse("100.00")!, amountFee)).toEqual(
+      Money.parse("5"),
+    );
   });
 });
 
@@ -321,7 +358,7 @@ describe("validateExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Bad",
-      amount: 0,
+      amount: Money.ZERO(),
       payerId: "alice",
       participantIds: ["alice"],
       splitMethod: "equal",
@@ -334,7 +371,7 @@ describe("validateExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Bad",
-      amount: 1000,
+      amount: Money.parse("10.00")!,
       payerId: "alice",
       participantIds: [],
       splitMethod: "equal",
@@ -349,7 +386,7 @@ describe("validateExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Bad",
-      amount: 1000,
+      amount: Money.parse("10.00")!,
       payerId: "alice",
       participantIds: ["bob"],
       splitMethod: "equal",
@@ -362,7 +399,7 @@ describe("validateExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Good",
-      amount: 1000,
+      amount: Money.parse("10.00")!,
       payerId: "alice",
       participantIds: ["alice", "bob"],
       splitMethod: "equal",

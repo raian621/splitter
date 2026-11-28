@@ -1,3 +1,5 @@
+import type { Money } from "./money";
+
 export type Person = {
   id: string;
   name: string;
@@ -6,7 +8,7 @@ export type Person = {
 export type Item = {
   id: string;
   description: string;
-  amount: number; // amount in cents
+  amount: Money;
   consumerIds: string[]; // people who got this item
 };
 
@@ -14,7 +16,8 @@ export type Fee = {
   id: string;
   description: string;
   type: "rate" | "amount";
-  value: number; // rate (e.g. 0.0875) or amount in cents
+  rate?: number;
+  amount?: Money;
 };
 
 export type SplitMethod = "equal" | "itemized";
@@ -22,7 +25,7 @@ export type SplitMethod = "equal" | "itemized";
 export type Expense = {
   id: string;
   description: string;
-  amount: number; // amount in cents
+  amount: Money;
   payerId: string;
   participantIds: string[]; // for equal split
   splitMethod: SplitMethod;
@@ -32,7 +35,7 @@ export type Expense = {
 
 export type Balance = {
   personId: string;
-  amount: number; // positive = owed money, negative = owes money
+  amount: Money; // positive = owed money, negative = owes money
 };
 
 export type Transaction = {

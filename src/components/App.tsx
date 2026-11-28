@@ -1,9 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  computeBalancesFromExpenses,
-  formatCents,
-  getPersonName,
-} from "../core/expense";
+import { computeBalancesFromExpenses, getPersonName } from "../core/expense";
 import { deserializeLedger, serializeLedger } from "../core/serialize";
 import { settleDebts } from "../core/settlement";
 import type { Expense, Ledger, Person } from "../core/types";
@@ -16,6 +12,7 @@ import { PeopleManager } from "./PeopleManager";
 import { SettlementView } from "./SettlementView";
 import "../styles/App.css";
 import { getIdGenerator } from "../core/id-util";
+import { Money } from "../core/money";
 
 const defaultPeople: Person[] = [
   { id: "1", name: "Alice" },
@@ -49,6 +46,7 @@ function App() {
 
       try {
         const ledger = await deserializeLedger(ledgerParam);
+        console.log(ledger);
         if (cancelled) return;
         setPeople(Array.isArray(ledger.people) ? ledger.people : defaultPeople);
         setExpenses(Array.isArray(ledger.expenses) ? ledger.expenses : []);
@@ -85,7 +83,11 @@ function App() {
   const transactions = useMemo(() => settleDebts(balances), [balances]);
 
   const totalExpenses = useMemo(
-    () => expenses.reduce((sum, expense) => sum + expense.amount, 0),
+    () =>
+      expenses.reduce(
+        (sum, expense) => Money.add(sum, expense.amount),
+        Money.ZERO(),
+      ),
     [expenses],
   );
 
@@ -245,7 +247,7 @@ function App() {
           </div>
           <div className="summary-row">
             <span className="summary-label">Total</span>
-            <span className="summary-value">{formatCents(totalExpenses)}</span>
+            <span className="summary-value">{totalExpenses.formatCents()}</span>
           </div>
         </section>
 

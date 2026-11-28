@@ -1,8 +1,5 @@
-import {
-  calculateExpenseContributions,
-  formatCents,
-  getPersonName,
-} from "../core/expense";
+import { calculateExpenseContributions, getPersonName } from "../core/expense";
+import { Money } from "../core/money";
 import type { Expense, Person } from "../core/types";
 import "../styles/ExpenseBreakdownModal.css";
 import { Modal } from "./Modal";
@@ -26,8 +23,8 @@ export function ExpenseBreakdownModal({
 
   const contributions = calculateExpenseContributions(expense);
   const totalContributions = contributions.reduce(
-    (sum, c) => sum + c.amount,
-    0,
+    (sum, c) => Money.add(sum, c.amount),
+    Money.ZERO(),
   );
 
   return (
@@ -40,7 +37,7 @@ export function ExpenseBreakdownModal({
         <div className="breakdown-modal-total">
           <span className="breakdown-modal-label">Total</span>
           <span className="breakdown-modal-value">
-            {formatCents(expense.amount)}
+            {expense.amount.formatCents()}
           </span>
         </div>
 
@@ -52,7 +49,7 @@ export function ExpenseBreakdownModal({
                 {getPersonName(people, contribution.personId)}
               </span>
               <span className="breakdown-modal-amount">
-                {formatCents(contribution.amount)}
+                {contribution.amount.formatCents()}
               </span>
             </li>
           ))}
@@ -61,7 +58,7 @@ export function ExpenseBreakdownModal({
         <div className="breakdown-modal-total breakdown-modal-total--subtle">
           <span className="breakdown-modal-label">Sum of contributions</span>
           <span className="breakdown-modal-value">
-            {formatCents(totalContributions)}
+            {totalContributions.formatCents()}
           </span>
         </div>
       </div>

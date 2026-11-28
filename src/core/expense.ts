@@ -31,19 +31,22 @@ function splitEqualExpense(expense: Expense): Balance[] {
   // Payer paid the full amount, so they are owed the total
   balances.push({
     personId: expense.payerId,
-    amount: Money.fromCents(expense.amount),
+    amount: expense.amount,
   });
 
-  const share = Math.floor(expense.amount / expense.participantIds.length);
-  const remainder = expense.amount - share * expense.participantIds.length;
+  const share = Money.div(expense.amount, expense.participantIds.length);
+  const remainderNanos = Money.sub(
+    expense.amount,
+    Money.mul(share, expense.participantIds.length),
+  ).nanos;
 
   for (let i = 0; i < expense.participantIds.length; i++) {
     const participantId = expense.participantIds[i];
-    const amount = share + (i < remainder ? 1 : 0);
+    const amount = Money.add(share, new Money(0, i < remainderNanos ? 1 : 0));
 
     balances.push({
       personId: participantId,
-      amount: Money.fromCents(amount).neg(),
+      amount: amount.neg(),
     });
   }
 
@@ -66,7 +69,7 @@ function splitItemizedExpense(expense: Expense): Balance[] {
   // Payer paid the full amount, so they are owed the total
   balances.push({
     personId: expense.payerId,
-    amount: Money.fromCents(expense.amount),
+    amount: expense.amount,
   });
 
   for (const [personId, share] of itemShares.entries()) {
@@ -211,7 +214,7 @@ export function computeBalancesFromExpenses(expenses: Expense[]): Balance[] {
 }
 
 export function validateExpense(expense: Expense): string | null {
-  if (expense.amount <= 0) {
+  if (Money.cmp(expense.amount, Money.ZERO()) <= 0) {
     return "Amount must be greater than zero";
   }
 
@@ -262,7 +265,7 @@ function validateItemizedExpense(expense: Expense): string | null {
   }
 
   const calculatedTotal = calculateItemizedTotal(items, fees);
-  if (Money.cmp(calculatedTotal, Money.fromCents(expense.amount)) !== 0) {
+  if (Money.cmp(calculatedTotal, expense.amount) !== 0) {
     return "Expense total does not match items and fees";
   }
 

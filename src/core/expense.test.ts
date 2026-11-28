@@ -18,7 +18,7 @@ describe("splitExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Dinner",
-      amount: 10000, // $100.00
+      amount: Money.parse("100.00")!,
       payerId: "alice",
       participantIds: ["alice", "bob", "carol"],
       splitMethod: "equal",
@@ -28,9 +28,9 @@ describe("splitExpense", () => {
 
     expect(balances).toEqual([
       { personId: "alice", amount: Money.parse("100") },
-      { personId: "alice", amount: Money.parse("-33.34") },
-      { personId: "bob", amount: Money.parse("-33.33") },
-      { personId: "carol", amount: Money.parse("-33.33") },
+      { personId: "alice", amount: new Money(-33, -333_333_334) },
+      { personId: "bob", amount: new Money(-33, -333_333_333) },
+      { personId: "carol", amount: new Money(-33, -333_333_333) },
     ]);
   });
 
@@ -38,7 +38,7 @@ describe("splitExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Solo ride",
-      amount: 2500,
+      amount: Money.parse("25.00")!,
       payerId: "alice",
       participantIds: ["alice"],
       splitMethod: "equal",
@@ -56,7 +56,7 @@ describe("splitExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Invalid",
-      amount: 1000,
+      amount: Money.parse("10.00")!,
       payerId: "alice",
       participantIds: [],
       splitMethod: "equal",
@@ -88,7 +88,7 @@ describe("computeBalancesFromExpenses", () => {
       {
         id: "1",
         description: "Ride",
-        amount: 3000,
+        amount: Money.parse("30.00")!,
         payerId: "alice",
         participantIds: ["alice", "bob"],
         splitMethod: "equal",
@@ -96,7 +96,7 @@ describe("computeBalancesFromExpenses", () => {
       {
         id: "2",
         description: "Food",
-        amount: 4000,
+        amount: Money.parse("40.00")!,
         payerId: "bob",
         participantIds: ["alice", "bob", "carol"],
         splitMethod: "equal",
@@ -110,15 +110,15 @@ describe("computeBalancesFromExpenses", () => {
     // Carol owes $13.33 -> -1333
     expect(balances).toContainEqual({
       personId: "alice",
-      amount: Money.parse("1.66"),
+      amount: new Money(1, 666_666_666),
     });
     expect(balances).toContainEqual({
       personId: "bob",
-      amount: Money.parse("11.67"),
+      amount: new Money(11, 666_666_667),
     });
     expect(balances).toContainEqual({
       personId: "carol",
-      amount: Money.parse("-13.33"),
+      amount: new Money(-13, -333_333_333),
     });
 
     const total = balances.reduce(
@@ -134,7 +134,7 @@ describe("splitExpense with itemized method", () => {
     const expense: Expense = {
       id: "1",
       description: "Dinner",
-      amount: 12875, // $100 items + $8.75 tax + $20.00 tip = $128.75
+      amount: Money.parse("128.75")!,
       payerId: "alice",
       participantIds: [],
       splitMethod: "itemized",
@@ -199,7 +199,7 @@ describe("splitExpense with itemized method", () => {
     const expense: Expense = {
       id: "1",
       description: "Solo item",
-      amount: 1000,
+      amount: Money.parse("10.00")!,
       payerId: "alice",
       participantIds: [],
       splitMethod: "itemized",
@@ -226,7 +226,7 @@ describe("splitExpense with itemized method", () => {
     const expense: Expense = {
       id: "1",
       description: "Empty",
-      amount: 0,
+      amount: Money.ZERO(),
       payerId: "alice",
       participantIds: [],
       splitMethod: "itemized",
@@ -262,7 +262,7 @@ describe("calculateExpenseContributions", () => {
     const expense: Expense = {
       id: "1",
       description: "Taxi",
-      amount: 3000,
+      amount: Money.parse("30")!,
       payerId: "alice",
       participantIds: ["alice", "bob", "carol"],
       splitMethod: "equal",
@@ -284,7 +284,7 @@ describe("calculateExpenseContributions", () => {
     const expense: Expense = {
       id: "1",
       description: "Dinner",
-      amount: 12875,
+      amount: Money.parse("128.75")!,
       payerId: "alice",
       participantIds: [],
       splitMethod: "itemized",
@@ -358,7 +358,7 @@ describe("validateExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Bad",
-      amount: 0,
+      amount: Money.ZERO(),
       payerId: "alice",
       participantIds: ["alice"],
       splitMethod: "equal",
@@ -371,7 +371,7 @@ describe("validateExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Bad",
-      amount: 1000,
+      amount: Money.parse("10.00")!,
       payerId: "alice",
       participantIds: [],
       splitMethod: "equal",
@@ -386,7 +386,7 @@ describe("validateExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Bad",
-      amount: 1000,
+      amount: Money.parse("10.00")!,
       payerId: "alice",
       participantIds: ["bob"],
       splitMethod: "equal",
@@ -399,7 +399,7 @@ describe("validateExpense", () => {
     const expense: Expense = {
       id: "1",
       description: "Good",
-      amount: 1000,
+      amount: Money.parse("10.00")!,
       payerId: "alice",
       participantIds: ["alice", "bob"],
       splitMethod: "equal",

@@ -1,8 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  calculateItemizedTotal,
-  validateExpense,
-} from "../core/expense";
+import { calculateItemizedTotal, validateExpense } from "../core/expense";
 import type { Expense, Fee, Item, Person } from "../core/types";
 import { Money } from "../core/money";
 
@@ -51,7 +48,7 @@ function initializeState(
 
   return {
     description: expenseToEdit.description,
-    amount: (expenseToEdit.amount / 100).toFixed(2),
+    amount: (expenseToEdit.amount.cents() / 100).toFixed(2),
     payerId: expenseToEdit.payerId,
     splitMethod: expenseToEdit.splitMethod,
     selectedParticipantIds: expenseToEdit.participantIds.filter(
@@ -206,7 +203,7 @@ export function ExpenseForm({
     const expense: Expense = {
       id: expenseToEdit?.id ?? getId().toString(),
       description: description.trim() || "Expense",
-      amount: amountInCents,
+      amount: Money.fromCents(amountInCents),
       payerId,
       participantIds,
       splitMethod,

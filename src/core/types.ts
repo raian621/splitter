@@ -25,7 +25,7 @@ export type SplitMethod = "equal" | "itemized";
 export type Expense = {
   id: string;
   description: string;
-  amount: number; // amount in cents
+  amount: Money;
   payerId: string;
   participantIds: string[]; // for equal split
   splitMethod: SplitMethod;

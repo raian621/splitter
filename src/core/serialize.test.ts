@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { deserializeLedger, serializeLedger } from "./serialize";
 import type { Ledger } from "./types";
+import { Money } from "./money";
 
 const sampleLedger: Ledger = {
   people: [
@@ -11,7 +12,7 @@ const sampleLedger: Ledger = {
     {
       id: "exp-1",
       description: "Dinner",
-      amount: 10000,
+      amount: Money.parse("100.00")!,
       payerId: "1",
       participantIds: ["1", "2"],
       splitMethod: "equal",
@@ -44,7 +45,7 @@ describe("serializeLedger", () => {
         {
           id: "exp-1",
           description: "寿司 🍣",
-          amount: 5000,
+          amount: Money.parse("50.00")!,
           payerId: "1",
           participantIds: ["1"],
           splitMethod: "equal",
@@ -79,7 +80,7 @@ describe("deserializeLedger", () => {
         {
           id: "exp-1",
           description: "寿司 🍣",
-          amount: 5000,
+          amount: Money.parse("50.00")!,
           payerId: "1",
           participantIds: ["1"],
           splitMethod: "equal",
@@ -103,7 +104,7 @@ describe("deserializeLedger", () => {
         {
           id: "exp-1",
           description: "Dinner",
-          amount: 12875,
+          amount: Money.parse("128.75")!,
           payerId: "1",
           participantIds: ["1", "2"],
           splitMethod: "itemized",
@@ -111,7 +112,7 @@ describe("deserializeLedger", () => {
             {
               id: "item-1",
               description: "Burger",
-              amount: 1500,
+              amount: Money.parse("15.00")!,
               consumerIds: ["1"],
             },
           ],
@@ -120,7 +121,7 @@ describe("deserializeLedger", () => {
               id: "fee-1",
               description: "Tax",
               type: "rate",
-              value: 0.0875,
+              rate: 0.0875,
             },
           ],
         },
@@ -142,7 +143,7 @@ describe("deserializeLedger", () => {
       expenses: Array.from({ length: 20 }, (_, i) => ({
         id: `exp-${i}`,
         description: `Expense ${i} with a fairly long description`,
-        amount: 12345,
+        amount: Money.parse("123.45")!,
         payerId: "1",
         participantIds: ["1", "2", "3"],
         splitMethod: "equal" as const,

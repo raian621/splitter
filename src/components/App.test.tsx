@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { serializeLedger } from "../core/serialize";
 import App from "./App";
+import { Money } from "../core/money";
 
 beforeEach(() => {
   vi.stubGlobal("navigator", { clipboard: { writeText: vi.fn() } });
@@ -111,7 +112,7 @@ describe("App", () => {
         {
           id: "exp-1",
           description: "Shared ride",
-          amount: 3000,
+          amount: Money.parse("30")!,
           payerId: "1",
           participantIds: ["1", "2"],
           splitMethod: "equal" as const,

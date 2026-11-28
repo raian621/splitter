@@ -70,10 +70,10 @@ function splitItemizedExpense(expense: Expense): Balance[] {
   });
 
   for (const [personId, share] of itemShares.entries()) {
-    const feeShare = feeShares.get(personId) ?? 0;
+    const feeShare = feeShares.get(personId) ?? Money.ZERO();
     balances.push({
       personId,
-      amount: Money.add(share, Money.fromCents(feeShare)).neg(),
+      amount: Money.add(share, feeShare).neg(),
     });
   }
 
@@ -106,17 +106,15 @@ export function calculateItemShares(items: Item[]): Map<string, Money> {
   return shares;
 }
 
-export function calculateFeeTotal(itemTotal: Money, fee: Fee): number {
-  return fee.type === "rate"
-    ? Math.round(fee.value * itemTotal.cents())
-    : fee.value;
+export function calculateFeeTotal(itemTotal: Money, fee: Fee): Money {
+  return fee.type === "rate" ? Money.mul(itemTotal, fee.rate!) : fee.amount!;
 }
 
 export function calculateFeeShares(
   itemShares: Map<string, Money>,
   fees: Fee[],
-): Map<string, number> {
-  const feeShares = new Map<string, number>();
+): Map<string, Money> {
+  const feeShares = new Map<string, Money>();
   const totalItemAmount = Array.from(itemShares.values()).reduce(
     Money.add,
     Money.ZERO(),
@@ -131,31 +129,31 @@ export function calculateFeeShares(
     const distributedFee = distributeAmount(totalFee, itemShares);
 
     for (const [personId, share] of distributedFee.entries()) {
-      const current = feeShares.get(personId) ?? 0;
-      feeShares.set(personId, current + share);
+      const current = feeShares.get(personId) ?? Money.ZERO();
+      feeShares.set(personId, Money.add(current, share));
     }
   }
 
   return feeShares;
 }
 
-export function calculateItemizedTotal(items: Item[], fees: Fee[]): number {
+export function calculateItemizedTotal(items: Item[], fees: Fee[]): Money {
   const itemTotal = items.reduce(
     (sum, item) => Money.add(sum, item.amount),
     Money.ZERO(),
   );
   const feeTotal = fees.reduce(
-    (sum, fee) => sum + calculateFeeTotal(itemTotal, fee),
-    0,
+    (sum, fee) => Money.add(sum, calculateFeeTotal(itemTotal, fee)),
+    Money.ZERO(),
   );
-  return itemTotal.cents() + feeTotal;
+  return Money.add(itemTotal, feeTotal);
 }
 
 function distributeAmount(
-  amount: number,
+  amount: Money,
   weights: Map<string, Money>,
-): Map<string, number> {
-  const result = new Map<string, number>();
+): Map<string, Money> {
+  const result = new Map<string, Money>();
   const totalWeight = Array.from(weights.values()).reduce(
     (sum, weight) => sum + weight.cents(),
     0,
@@ -165,24 +163,29 @@ function distributeAmount(
     return result;
   }
 
-  let distributed = 0;
-  const fractions: { personId: string; fraction: number }[] = [];
+  let distributed = Money.ZERO();
 
   for (const [personId, weight] of weights.entries()) {
-    const exact = (amount * weight.cents()) / totalWeight;
-    const share = Math.floor(exact);
-    result.set(personId, share);
-    distributed += share;
-    fractions.push({ personId, fraction: exact - share });
+    const exact = Money.div(Money.mul(amount, weight.cents()), totalWeight);
+    result.set(personId, exact);
+    distributed = Money.add(distributed, exact);
   }
 
-  const remainder = amount - distributed;
-  if (remainder > 0) {
-    fractions.sort((a, b) => b.fraction - a.fraction);
-    for (let i = 0; i < remainder; i++) {
-      const personId = fractions[i % fractions.length].personId;
-      result.set(personId, (result.get(personId) ?? 0) + 1);
-    }
+  const remainderNanos = Money.sub(amount, distributed).nanos;
+  if (remainderNanos === 0) {
+    return result;
+  }
+
+  let people = Array.from(result.keys());
+  for (let i = 0; i < Math.abs(remainderNanos); i++) {
+    const personId = people[i];
+    result.set(
+      personId,
+      (remainderNanos < 0 ? Money.sub : Money.add)(
+        result.get(personId) ?? Money.ZERO(),
+        new Money(0, 1),
+      ),
+    );
   }
 
   return result;
@@ -246,7 +249,10 @@ function validateItemizedExpense(expense: Expense): string | null {
   }
 
   for (const fee of fees) {
-    if (fee.value < 0) {
+    if (
+      (fee.type === "rate" && fee.rate! < 0) ||
+      (fee.type === "amount" && Money.cmp(fee.amount!, Money.ZERO()) < 0)
+    ) {
       return `Fee "${fee.description || "Untitled"}" cannot be negative`;
     }
 
@@ -256,7 +262,7 @@ function validateItemizedExpense(expense: Expense): string | null {
   }
 
   const calculatedTotal = calculateItemizedTotal(items, fees);
-  if (calculatedTotal !== expense.amount) {
+  if (Money.cmp(calculatedTotal, Money.fromCents(expense.amount)) !== 0) {
     return "Expense total does not match items and fees";
   }
 

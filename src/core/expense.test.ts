@@ -159,8 +159,8 @@ describe("splitExpense with itemized method", () => {
         },
       ],
       fees: [
-        { id: "tax", description: "Tax", type: "rate", value: 0.0875 },
-        { id: "tip", description: "Tip", type: "rate", value: 0.2 },
+        { id: "tax", description: "Tax", type: "rate", rate: 0.0875 },
+        { id: "tip", description: "Tip", type: "rate", rate: 0.2 },
       ],
     };
 
@@ -177,15 +177,15 @@ describe("splitExpense with itemized method", () => {
     });
     expect(balances).toContainEqual({
       personId: "alice",
-      amount: new Money(-42, -923_333_334),
+      amount: new Money(-42, -916_666_666),
     });
     expect(balances).toContainEqual({
       personId: "bob",
-      amount: new Money(-42, -923_333_333),
+      amount: new Money(-42, -916_666_667),
     });
     expect(balances).toContainEqual({
       personId: "carol",
-      amount: new Money(-42, -903_333_333),
+      amount: new Money(-42, -916_666_667),
     });
 
     const total = balances.reduce(
@@ -249,11 +249,11 @@ describe("calculateItemizedTotal", () => {
       },
     ];
     const fees: Fee[] = [
-      { id: "tax", description: "Tax", type: "rate", value: 0.0875 },
-      { id: "tip", description: "Tip", type: "rate", value: 0.18 },
+      { id: "tax", description: "Tax", type: "rate", rate: 0.0875 },
+      { id: "tip", description: "Tip", type: "rate", rate: 0.18 },
     ];
 
-    expect(calculateItemizedTotal(items, fees)).toBe(12675);
+    expect(calculateItemizedTotal(items, fees)).toEqual(Money.parse("126.75"));
   });
 });
 
@@ -309,8 +309,8 @@ describe("calculateExpenseContributions", () => {
         },
       ],
       fees: [
-        { id: "tax", description: "Tax", type: "rate", value: 0.0875 },
-        { id: "tip", description: "Tip", type: "rate", value: 0.2 },
+        { id: "tax", description: "Tax", type: "rate", rate: 0.0875 },
+        { id: "tip", description: "Tip", type: "rate", rate: 0.2 },
       ],
     };
 
@@ -319,9 +319,9 @@ describe("calculateExpenseContributions", () => {
     expect(contributions).toHaveLength(3);
     expect(contributions).toEqual(
       expect.arrayContaining([
-        { personId: "alice", amount: new Money(42, 923_333_334) },
-        { personId: "bob", amount: new Money(42, 923_333_333) },
-        { personId: "carol", amount: new Money(42, 903_333_333) },
+        { personId: "alice", amount: new Money(42, 916_666_666) },
+        { personId: "bob", amount: new Money(42, 916_666_667) },
+        { personId: "carol", amount: new Money(42, 916_666_667) },
       ]),
     );
   });
@@ -333,9 +333,11 @@ describe("calculateFeeTotal", () => {
       id: "tax",
       description: "Tax",
       type: "rate",
-      value: 0.0875,
+      rate: 0.0875,
     };
-    expect(calculateFeeTotal(Money.parse("100.00")!, rateFee)).toBe(875);
+    expect(calculateFeeTotal(Money.parse("100.00")!, rateFee)).toEqual(
+      Money.parse("8.75"),
+    );
   });
 
   it("returns fixed amount for amount-based fee", () => {
@@ -343,9 +345,11 @@ describe("calculateFeeTotal", () => {
       id: "service",
       description: "Service",
       type: "amount",
-      value: 500,
+      amount: Money.parse("5")!,
     };
-    expect(calculateFeeTotal(Money.parse("100.00")!, amountFee)).toBe(500);
+    expect(calculateFeeTotal(Money.parse("100.00")!, amountFee)).toEqual(
+      Money.parse("5"),
+    );
   });
 });
 

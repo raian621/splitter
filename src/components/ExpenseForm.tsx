@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import {
   calculateItemizedTotal,
-  formatCents,
   validateExpense,
 } from "../core/expense";
 import type { Expense, Fee, Item, Person } from "../core/types";
@@ -29,7 +28,7 @@ function createDefaultFee(getId: () => number): Fee {
     id: getId().toString(),
     description: "Tax",
     type: "rate",
-    value: 0.0875,
+    rate: 0.0875,
   };
 }
 
@@ -194,7 +193,7 @@ export function ExpenseForm({
 
     const amountInCents =
       splitMethod === "itemized"
-        ? calculatedItemizedTotal
+        ? calculatedItemizedTotal.cents()
         : Math.round(parseFloat(amount) * 100);
 
     const participantIds =
@@ -423,10 +422,14 @@ export function ExpenseForm({
                       onChange={(e) =>
                         updateFee(fee.id, {
                           type: e.target.value as "rate" | "amount",
-                          value:
+                          rate:
                             e.target.value === "rate"
-                              ? fee.value / 100
-                              : fee.value * 100,
+                              ? fee.rate! / 100
+                              : undefined,
+                          amount:
+                            e.target.value === "amount"
+                              ? fee.amount!
+                              : undefined,
                         })
                       }
                       className="input fee-type"
@@ -440,15 +443,21 @@ export function ExpenseForm({
                       min="0"
                       step="0.01"
                       value={formatFloat(
-                        fee.type === "rate" ? fee.value * 100 : fee.value / 100,
+                        fee.type === "rate"
+                          ? fee.rate! * 100
+                          : fee.amount!.cents() / 100,
                         /*decimalPlaces=*/ 2,
                       )}
                       onChange={(e) =>
                         updateFee(fee.id, {
-                          value:
+                          rate:
                             fee.type === "rate"
                               ? parseFloat(e.target.value) / 100
-                              : Math.round(parseFloat(e.target.value) * 100),
+                              : undefined,
+                          amount:
+                            fee.type === "amount"
+                              ? Money.parse(e.target.value) || undefined
+                              : undefined,
                         })
                       }
                       placeholder="0.00"
@@ -477,7 +486,7 @@ export function ExpenseForm({
             <div className="itemized-total">
               <span className="itemized-total-label">Calculated total</span>
               <span className="itemized-total-value">
-                {formatCents(calculatedItemizedTotal)}
+                {calculatedItemizedTotal.formatCents()}
               </span>
             </div>
           </>

@@ -16,7 +16,8 @@ export type Fee = {
   id: string;
   description: string;
   type: "rate" | "amount";
-  value: number; // rate (e.g. 0.0875) or amount in cents
+  rate?: number;
+  amount?: Money;
 };
 
 export type SplitMethod = "equal" | "itemized";

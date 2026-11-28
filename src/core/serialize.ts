@@ -1,3 +1,4 @@
+import { Money } from "./money";
 import type { Ledger } from "./types";
 
 async function compress(data: Uint8Array): Promise<Uint8Array> {
@@ -74,5 +75,15 @@ export async function deserializeLedger(serialized: string): Promise<Ledger> {
   const compressed = base64UrlToBytes(serialized);
   const jsonBytes = await decompress(compressed);
   const json = new TextDecoder().decode(jsonBytes);
-  return JSON.parse(json);
+  const ledger = JSON.parse(json) as Ledger;
+  ledger.expenses = ledger.expenses.map((e) => {
+    const items =
+      e.items !== undefined && e.items.length > 0
+        ? e.items.map((i) => {
+            return { ...i, amount: new Money(i.amount.units, i.amount.nanos) };
+          })
+        : undefined;
+    return { ...e, amount: new Money(e.amount.units, e.amount.nanos), items };
+  });
+  return ledger;
 }
